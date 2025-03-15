@@ -23,5 +23,5 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Proxima Nova, system-ui, sans-serif;
-  @apply max-w-2xl mx-auto px-1;
+  @apply max-w-4xl mx-auto px-1;
 }
