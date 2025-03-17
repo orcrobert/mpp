@@ -1,9 +1,10 @@
 "use client"
 
-import { useEntity } from "@/context/entitycontext";
+import { useEntity } from "@/context/entity-context";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import BandForm from "@/components/form";
+import { toaster } from "@/components/ui/toaster"
 
 export default function UpdateBandPage() {
     const { entities, updateEntity } = useEntity();
@@ -22,7 +23,17 @@ export default function UpdateBandPage() {
 
         const updatedBand = { ...bandToUpdate, ...bandData };
         updateEntity(bandToUpdate.id, updatedBand);
-        router.push("/");
+
+        toaster.create({
+            title: "Band Updated",
+            description: "The band has been updated successfully.",
+            type: "success",
+            duration: 2000,
+        });
+
+        setTimeout(() => {
+            router.push("/");
+        }, 1000);
     };
 
     if (!bandToUpdate) {
