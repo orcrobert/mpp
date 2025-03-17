@@ -8,7 +8,7 @@ module.exports = {
     theme: {
         extend: {
             fontFamily: {
-                sans: ["Proxima Nova", "system-ui", "sans-serif"],
+                // sans: ["Proxima Nova", "system-ui", "sans-serif"],
             },
         },
     },
