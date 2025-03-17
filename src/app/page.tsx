@@ -4,6 +4,7 @@ import Image from "next/image";
 import Navbar from "../components/navbar";
 import Header from "../components/header"
 import DataGrid from "@/components/datagrid";
+import Footer from "@/components/footer";
 import { useState } from "react";
 import AddBandPage from "./addband/page";
 import { useEntity } from "@/context/entitycontext";
@@ -26,7 +27,10 @@ export default function Home() {
   return (
     <div className="">
       <Header />
-      <DataGrid entities={entities} />
+      <section id="table-view-section">
+        <DataGrid entities={entities} />
+      </section>
+      <Footer />
     </div>
   );
 }

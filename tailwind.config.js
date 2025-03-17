@@ -6,7 +6,11 @@ module.exports = {
         "./node_modules/@heroui/react/**/*.{js,ts,jsx,tsx}"
     ],
     theme: {
-        extend: {},
+        extend: {
+            fontFamily: {
+                sans: ["Proxima Nova", "system-ui", "sans-serif"],
+            },
+        },
     },
     plugins: [],
 };
