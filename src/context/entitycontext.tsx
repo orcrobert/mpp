@@ -16,6 +16,8 @@ type Entity = {
 type EntityContextType = {
     entities: Entity[];
     addEntity: (entity: Entity) => void;
+    deleteEntity: (id: number) => void;
+    updateEntity: (id: number, updatedEntity: Entity) => void;
 };
 
 const EntityContext = createContext<EntityContextType | undefined>(undefined);
@@ -129,8 +131,18 @@ export function EntityProvider({ children }: { children: ReactNode }) {
         setEntities((prevEntities) => [...prevEntities, entity]);
     };
 
+    const deleteEntity = (id: number) => {
+        setEntities((prevEntities) => prevEntities.filter((entity) => entity.id !== id));
+    };
+
+    const updateEntity = (id: number, updatedEntity: Entity) => {
+        setEntities((prevEntities) =>
+            prevEntities.map((entity) => (entity.id === id ? updatedEntity : entity))
+        );
+    };
+
     return (
-        <EntityContext.Provider value={{ entities, addEntity }}>
+        <EntityContext.Provider value={{ entities, addEntity, deleteEntity, updateEntity }}>
             {children}
         </EntityContext.Provider>
     );

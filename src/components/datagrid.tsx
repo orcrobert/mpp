@@ -1,4 +1,6 @@
 import { Table, Button, Flex, Checkbox } from "@chakra-ui/react";
+import { useState } from "react";
+import { useEntity } from "@/context/entitycontext";
 
 type Entity = {
     id: number;
@@ -27,13 +29,30 @@ const columns = [
 ];
 
 export default function DataGrid({ entities }: Props) {
+
+    const { deleteEntity } = useEntity();
+    const [selectedRows, setSelectedRows] = useState<number[]>([]);
+
+    const toggleRowSelection = (id: number) => {
+        setSelectedRows((prevSelected) =>
+            prevSelected.includes(id)
+                ? prevSelected.filter((rowId) => rowId !== id)
+                : [...prevSelected, id]
+        );
+    };
+
+    const handleDelete = () => {
+        selectedRows.forEach((id) => deleteEntity(id));
+        setSelectedRows([]);
+    };
+
     return (
         <div>
-            <Table.Root size="sm" striped marginBottom="5">
+            <Table.Root size="sm" striped marginBottom="5" marginTop="5">
                 <Table.Header>
                     <Table.Row>
                         {columns.map((column) => (
-                            <Table.ColumnHeader key={column.key}>{column.label}</Table.ColumnHeader>
+                            <Table.ColumnHeader fontWeight="bold" key={column.key}>{column.label}</Table.ColumnHeader>
                         ))}
                     </Table.Row>
                 </Table.Header>
@@ -41,7 +60,7 @@ export default function DataGrid({ entities }: Props) {
                     {entities.map((entity) => (
                         <Table.Row key={entity.id}>
                             <Table.Cell>
-                                <Checkbox.Root variant={"solid"}>
+                                <Checkbox.Root variant={"solid"} onChange={() => toggleRowSelection(entity.id)} checked={selectedRows.includes(entity.id)}>
                                     <Checkbox.HiddenInput />
                                     <Checkbox.Control />
                                 </Checkbox.Root>
@@ -77,10 +96,10 @@ export default function DataGrid({ entities }: Props) {
                 </Table.Body>
             </Table.Root>
             <div className="flex items-center justify-center gap-2 pt-12">
-                <Button colorPalette="red" size="xs">
+                <Button colorPalette="red" size="xs" onClick={handleDelete} disabled={selectedRows.length === 0}>
                     Delete Selected
                 </Button>
-                <Button colorPalette="blue" size="xs">
+                <Button colorPalette="blue" size="xs" onClick={() => {}} disabled={selectedRows.length != 1}>
                     Update Selected
                 </Button>
             </div>
