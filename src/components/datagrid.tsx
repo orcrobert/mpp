@@ -1,6 +1,7 @@
 import { Table, Button, Flex, Checkbox } from "@chakra-ui/react";
 import { useState } from "react";
 import { useEntity } from "@/context/entitycontext";
+import { useRouter } from "next/navigation";
 
 type Entity = {
     id: number;
@@ -32,6 +33,7 @@ export default function DataGrid({ entities }: Props) {
 
     const { deleteEntity } = useEntity();
     const [selectedRows, setSelectedRows] = useState<number[]>([]);
+    const router = useRouter();
 
     const toggleRowSelection = (id: number) => {
         setSelectedRows((prevSelected) =>
@@ -44,6 +46,17 @@ export default function DataGrid({ entities }: Props) {
     const handleDelete = () => {
         selectedRows.forEach((id) => deleteEntity(id));
         setSelectedRows([]);
+    };
+
+    const handleUpdate = () => {
+        if (selectedRows.length === 1) {
+            const selectedId = selectedRows[0];
+            const updateUrl = `/updateband/${selectedId}`;
+            console.log(updateUrl);
+            setTimeout(() => {
+                router.push(updateUrl);
+            }, 3000);
+        }
     };
 
     return (
@@ -99,7 +112,7 @@ export default function DataGrid({ entities }: Props) {
                 <Button colorPalette="red" size="xs" onClick={handleDelete} disabled={selectedRows.length === 0}>
                     Delete Selected
                 </Button>
-                <Button colorPalette="blue" size="xs" onClick={() => {}} disabled={selectedRows.length != 1}>
+                <Button colorPalette="blue" size="xs" onClick={handleUpdate} disabled={selectedRows.length != 1}>
                     Update Selected
                 </Button>
             </div>
