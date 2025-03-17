@@ -58,7 +58,7 @@ export default function DataGrid({ entities }: Props) {
     const handleUpdate = () => {
         if (selectedRows.length === 1) {
             const selectedId = selectedRows[0];
-            const updateUrl = `/update-bands/${selectedId}`;
+            const updateUrl = `/update-band/${selectedId}`;
             router.push(updateUrl);
         }
     };
