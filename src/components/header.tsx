@@ -21,7 +21,7 @@ const Header = () => {
                         <br />
                         <div className="flex gap-5">
                             <Link href="#table-view-section" color="gray.100" background="gray.800" paddingX="2" paddingY="1" rounded="md">View Bands</Link>
-                            <Link href="/addband" color="gray.900" background="gray.100" paddingX="2" paddingY="1" rounded="md">Add Band</Link>
+                            <Link href="/add-band" color="gray.900" background="gray.100" paddingX="2" paddingY="1" rounded="md">Add Band</Link>
                         </div>
                     </div>
                 </div>

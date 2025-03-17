@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Roboto_Mono, Fira_Code } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar";
-import { EntityProvider } from "@/context/entitycontext";
+import { EntityProvider } from "@/context/entity-context";
 import { ChakraProvider } from "@chakra-ui/react";
 import { Provider } from "@/components/ui/provider";
+import { Toaster } from "@/components/ui/toaster"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +32,9 @@ const robotoMono = Roboto_Mono({
 export const metadata: Metadata = {
   title: "Metal Bands Database",
   description: "Collection of metal bands.",
+  icons: {
+    icon: '/slayer.png',
+  },
 };
 
 export default function RootLayout({
@@ -40,11 +44,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/slayer.png" type="image/png" />
+      </head>
       <body
         className={` ${geistMono.variable} antialiased`}>
         <Provider>
           <EntityProvider>
             <Navbar />
+            <Toaster />
             {children}
           </EntityProvider>
         </Provider>

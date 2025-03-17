@@ -1,7 +1,8 @@
 import { Table, Button, Flex, Checkbox } from "@chakra-ui/react";
 import { useState } from "react";
-import { useEntity } from "@/context/entitycontext";
+import { useEntity } from "@/context/entity-context";
 import { useRouter } from "next/navigation";
+import { toaster } from "./ui/toaster";
 
 type Entity = {
     id: number;
@@ -46,16 +47,19 @@ export default function DataGrid({ entities }: Props) {
     const handleDelete = () => {
         selectedRows.forEach((id) => deleteEntity(id));
         setSelectedRows([]);
+        toaster.create({
+            title: "Band Deleted",
+            description: "The band has been deleted successfully.",
+            type: "success",
+            duration: 2000,
+        });
     };
 
     const handleUpdate = () => {
         if (selectedRows.length === 1) {
             const selectedId = selectedRows[0];
-            const updateUrl = `/updateband/${selectedId}`;
-            console.log(updateUrl);
-            setTimeout(() => {
-                router.push(updateUrl);
-            }, 3000);
+            const updateUrl = `/update-bands/${selectedId}`;
+            router.push(updateUrl);
         }
     };
 

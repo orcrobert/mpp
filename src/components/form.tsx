@@ -9,7 +9,7 @@ type BandFormProps = {
     isUpdateMode?: boolean;
 };
 
-const BandForm = ({ onSubmit, initialData, isUpdateMode }: BandFormProps) => {
+const BandForm = ({ onSubmit, initialData, isUpdateMode } : BandFormProps) => {
     const [name, setName] = useState(initialData?.name || "");
     const [genre, setGenre] = useState(initialData?.genre || "");
     const [status, setStatus] = useState(initialData?.status ?? true);

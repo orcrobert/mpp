@@ -1,6 +1,6 @@
 // import Link from "next/link";
 import { Link } from "@chakra-ui/react"
-import AddBandPage from "@/app/addband/page";
+import AddBandPage from "@/app/add-band/page";
 
 const Navbar = () => {
     return (
@@ -8,7 +8,7 @@ const Navbar = () => {
             <ul className="flex gap-4">
                 <li><Link href="/" fontSize="sm" fontWeight="bold">Home</Link></li>
                 <li><Link href="#table-view-section" fontSize="sm" fontWeight="bold">View</Link></li>
-                <li><Link href="/addband" fontSize="sm" fontWeight="bold">Add band</Link></li>
+                <li><Link href="/add-band" fontSize="sm" fontWeight="bold">Add band</Link></li>
             </ul>
         </header>
     )

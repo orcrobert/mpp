@@ -1,8 +1,9 @@
 "use client"
 
-import { useEntity } from "@/context/entitycontext";
+import { useEntity } from "@/context/entity-context";
 import { useRouter } from "next/navigation";
 import BandForm from "@/components/form";
+import { toaster } from "@/components/ui/toaster"
 
 export default function AddBandPage() {
     const { addEntity } = useEntity();
@@ -14,7 +15,16 @@ export default function AddBandPage() {
             ...bandData,
         };
         addEntity(newBand);
-        router.push("/");
+        toaster.create({
+            title: "Band Added",
+            description: "The band has been added successfully.",
+            type: "success",
+            duration: 2000,
+        });
+
+        setTimeout(() => {
+            router.push("/");
+        }, 1000);
     };
 
     return (
