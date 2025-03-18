@@ -2,7 +2,9 @@
 
 import Image from "next/image";
 import Navbar from "../components/navbar";
-import Header from "../components/header"
+import Header from "../components/header";
+import Legend from "../components/grid-legend"
+
 import DataGrid from "@/components/bands-grid";
 import Footer from "@/components/footer";
 import { useState } from "react";
@@ -18,6 +20,7 @@ export default function Home() {
       <Header />
       <section id="table-view-section">
         <DataGrid entities={entities} />
+        <Legend />
       </section>
       <Footer />
     </div>
