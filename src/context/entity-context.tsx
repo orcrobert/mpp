@@ -1,11 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
 type Entity = {
     id: number;
     name: string;
     genre: string;
+    rating: number;
     status: boolean;
     theme: string;
     country: string;
@@ -18,16 +19,24 @@ type EntityContextType = {
     addEntity: (entity: Entity) => void;
     deleteEntity: (id: number) => void;
     updateEntity: (id: number, updatedEntity: Entity) => void;
+    topRated: Entity | null;
+    averageRated: Entity | null;
+    lowestRated: Entity | null;
 };
 
 const EntityContext = createContext<EntityContextType | undefined>(undefined);
 
 export function EntityProvider({ children }: { children: ReactNode }) {
+    const [topRated, setTopRated] = useState<Entity | null>(null);
+    const [averageRated, setAverageRated] = useState<Entity | null>(null);
+    const [lowestRated, setLowestRated] = useState<Entity | null>(null);
+
     const [entities, setEntities] = useState<Entity[]>([
         {
             id: 1,
             name: "Fleshgod Apocalypse",
             genre: "Technical Death Metal",
+            rating: 9.8,
             status: true,
             theme: "Philosophy",
             country: "Italy",
@@ -38,6 +47,7 @@ export function EntityProvider({ children }: { children: ReactNode }) {
             id: 2,
             name: "Meshuggah",
             genre: "Progressive Metal",
+            rating: 7.8,
             status: true,
             theme: "Mathematics, Human Nature",
             country: "Sweden",
@@ -48,6 +58,7 @@ export function EntityProvider({ children }: { children: ReactNode }) {
             id: 3,
             name: "Opeth",
             genre: "Progressive Death Metal",
+            rating: 9.5,
             status: true,
             theme: "Nature, Death, Mysticism",
             country: "Sweden",
@@ -58,6 +69,7 @@ export function EntityProvider({ children }: { children: ReactNode }) {
             id: 4,
             name: "Behemoth",
             genre: "Blackened Death Metal",
+            rating: 8.7,
             status: true,
             theme: "Satanism, Anti-Christianity",
             country: "Poland",
@@ -68,6 +80,7 @@ export function EntityProvider({ children }: { children: ReactNode }) {
             id: 5,
             name: "Carcass",
             genre: "Melodic Death Metal",
+            rating: 9.0,
             status: true,
             theme: "Gore, Medical Themes",
             country: "United Kingdom",
@@ -78,6 +91,7 @@ export function EntityProvider({ children }: { children: ReactNode }) {
             id: 6,
             name: "Gojira",
             genre: "Progressive Metal, Death Metal",
+            rating: 7.2,
             status: true,
             theme: "Environmentalism, Nature",
             country: "France",
@@ -88,6 +102,7 @@ export function EntityProvider({ children }: { children: ReactNode }) {
             id: 7,
             name: "Amon Amarth",
             genre: "Melodic Death Metal",
+            rating: 8.9,
             status: true,
             theme: "Viking Mythology, Norse Mythology",
             country: "Sweden",
@@ -98,6 +113,7 @@ export function EntityProvider({ children }: { children: ReactNode }) {
             id: 8,
             name: "Dark Tranquillity",
             genre: "Melodic Death Metal",
+            rating: 9.9,
             status: true,
             theme: "Melancholy, War",
             country: "Sweden",
@@ -108,6 +124,7 @@ export function EntityProvider({ children }: { children: ReactNode }) {
             id: 9,
             name: "Death",
             genre: "Death Metal",
+            rating: 9.5,
             status: false,
             theme: "Philosophy, Death, Mental Struggles",
             country: "United States",
@@ -118,6 +135,7 @@ export function EntityProvider({ children }: { children: ReactNode }) {
             id: 10,
             name: "Sylosis",
             genre: "Thrash Metal, Progressive Metal",
+            rating: 7.6,
             status: true,
             theme: "Personal Struggles, Inner Turmoil",
             country: "United Kingdom",
@@ -126,7 +144,6 @@ export function EntityProvider({ children }: { children: ReactNode }) {
         },
     ]);
     
-
     const addEntity = (entity: Entity) => {
         setEntities((prevEntities) => [...prevEntities, entity]);
     };
@@ -141,8 +158,34 @@ export function EntityProvider({ children }: { children: ReactNode }) {
         );
     };
 
+    const calculateRatings = () => {
+        if (entities.length === 0) {
+            setTopRated(null);
+            setAverageRated(null);
+            setLowestRated(null);
+            return;
+        }
+
+        const sortedEntities = [...entities].sort((a, b) => b.rating - a.rating);
+        const top = sortedEntities[0];
+        const bottom = sortedEntities[sortedEntities.length - 1];
+
+        const avgRating = entities.reduce((sum, entity) => sum + entity.rating, 0) / entities.length;
+        const closestToAvg = sortedEntities.reduce((prev, curr) =>
+            Math.abs(curr.rating - avgRating) < Math.abs(prev.rating - avgRating) ? curr : prev
+        );
+
+        setTopRated(top);
+        setLowestRated(bottom);
+        setAverageRated(closestToAvg);
+    };
+
+    useEffect(() => {
+        calculateRatings();
+    }, [entities]);
+
     return (
-        <EntityContext.Provider value={{ entities, addEntity, deleteEntity, updateEntity }}>
+        <EntityContext.Provider value={{ entities, addEntity, deleteEntity, updateEntity, topRated, averageRated, lowestRated }}>
             {children}
         </EntityContext.Provider>
     );
