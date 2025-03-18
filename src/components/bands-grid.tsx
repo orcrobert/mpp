@@ -36,7 +36,29 @@ export default function DataGrid({ entities }: Props) {
     const { deleteEntity } = useEntity();
     const [selectedRows, setSelectedRows] = useState<number[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
+    const [sortedEntities, setSortedEntities] = useState<Entity[]>(entities);
+    const [sortConfig, setSortConfig] = useState({ key: '', direction: 'asc' });
     const router = useRouter();
+
+    const handleSort = (columnKey: string) => {
+        let direction = 'asc';
+        if (sortConfig.key === columnKey && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+
+        setSortConfig({ key: columnKey, direction });
+
+        const sorted = [...entities].sort((a, b) => {
+            const aValue = a[columnKey as keyof Entity];
+            const bValue = b[columnKey as keyof Entity];
+
+            if (aValue < bValue) return direction === 'asc' ? -1 : 1;
+            if (aValue > bValue) return direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        setSortedEntities(sorted);
+    };
 
     const toggleRowSelection = (id: number) => {
         setSelectedRows((prevSelected) =>
@@ -72,14 +94,20 @@ export default function DataGrid({ entities }: Props) {
                 <Table.Header>
                     <Table.Row>
                         {columns.map((column) => (
-                            <Table.ColumnHeader fontWeight="bold" key={column.key}>
+                            <Table.ColumnHeader
+                                key={column.key}
+                                fontWeight="bold"
+                                onClick={() => handleSort(column.key)}
+                                style={{ cursor: 'pointer' }}
+                            >
                                 {column.label}
+                                {sortConfig.key === column.key ? (sortConfig.direction === 'asc' ? ' 🔼' : ' 🔽') : ''}
                             </Table.ColumnHeader>
                         ))}
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                    {entities
+                    {sortedEntities
                         .filter((entity) => entity.genre.toLowerCase().includes(searchQuery.toLowerCase()))
                         .map((entity) => (
                             <Table.Row key={entity.id}>
@@ -127,7 +155,7 @@ export default function DataGrid({ entities }: Props) {
                 <Button colorPalette="red" size="xs" onClick={handleDelete} disabled={selectedRows.length === 0}>
                     Delete Selected
                 </Button>
-                <Button colorPalette="blue" size="xs" onClick={handleUpdate} disabled={selectedRows.length != 1}>
+                <Button colorPalette="blue" size="xs" onClick={handleUpdate} disabled={selectedRows.length !== 1}>
                     Update Selected
                 </Button>
             </div>
