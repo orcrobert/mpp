@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import userEvent from "@testing-library/user-event";
 
 const TestComponent = () => {
-    const { entities, deleteEntity } = useEntity();
+    const { entities, addEntity, updateEntity, deleteEntity, topRated, averageRated, lowestRated } = useEntity();
     const [entityCount, setEntityCount] = useState(entities.length);
 
     useEffect(() => {
