@@ -31,131 +31,158 @@ export function EntityProvider({ children }: { children: ReactNode }) {
     const [averageRated, setAverageRated] = useState<Entity | null>(null);
     const [lowestRated, setLowestRated] = useState<Entity | null>(null);
 
-    const [entities, setEntities] = useState<Entity[]>([
-        {
-            id: 1,
-            name: "Fleshgod Apocalypse",
-            genre: "Technical Death Metal",
-            rating: 9.8,
-            status: true,
-            theme: "Philosophy",
-            country: "Italy",
-            label: "Nuclear Blast",
-            link: "https://www.metal-archives.com/bands/Fleshgod_Apocalypse/113185",
-        },
-        {
-            id: 2,
-            name: "Meshuggah",
-            genre: "Progressive Metal",
-            rating: 7.8,
-            status: true,
-            theme: "Mathematics, Human Nature",
-            country: "Sweden",
-            label: "Nuclear Blast",
-            link: "https://www.metal-archives.com/bands/Meshuggah/240",
-        },
-        {
-            id: 3,
-            name: "Opeth",
-            genre: "Progressive Death Metal",
-            rating: 9.5,
-            status: true,
-            theme: "Nature, Death, Mysticism",
-            country: "Sweden",
-            label: "Moderbolaget",
-            link: "https://www.metal-archives.com/bands/Opeth/755",
-        },
-        {
-            id: 4,
-            name: "Behemoth",
-            genre: "Blackened Death Metal",
-            rating: 8.7,
-            status: true,
-            theme: "Satanism, Anti-Christianity",
-            country: "Poland",
-            label: "Nuclear Blast",
-            link: "https://www.metal-archives.com/bands/Behemoth/605",
-        },
-        {
-            id: 5,
-            name: "Carcass",
-            genre: "Melodic Death Metal",
-            rating: 9.0,
-            status: true,
-            theme: "Gore, Medical Themes",
-            country: "United Kingdom",
-            label: "Nuclear Blast",
-            link: "https://www.metal-archives.com/bands/Carcass/188",
-        },
-        {
-            id: 6,
-            name: "Gojira",
-            genre: "Progressive Metal, Death Metal",
-            rating: 7.2,
-            status: true,
-            theme: "Environmentalism, Nature",
-            country: "France",
-            label: "Roadrunner Records",
-            link: "https://www.metal-archives.com/bands/Gojira/7815",
-        },
-        {
-            id: 7,
-            name: "Amon Amarth",
-            genre: "Melodic Death Metal",
-            rating: 8.9,
-            status: true,
-            theme: "Viking Mythology, Norse Mythology",
-            country: "Sweden",
-            label: "Metal Blade",
-            link: "https://www.metal-archives.com/bands/Amon_Amarth/739",
-        },
-        {
-            id: 8,
-            name: "Dark Tranquillity",
-            genre: "Melodic Death Metal",
-            rating: 9.9,
-            status: true,
-            theme: "Melancholy, War",
-            country: "Sweden",
-            label: "Century Media Records",
-            link: "https://www.metal-archives.com/bands/Dark_Tranquillity/149",
-        },
-        {
-            id: 9,
-            name: "Death",
-            genre: "Death Metal",
-            rating: 9.5,
-            status: false,
-            theme: "Philosophy, Death, Mental Struggles",
-            country: "United States",
-            label: "Relapse Records",
-            link: "https://www.metal-archives.com/bands/Death/70",
-        },
-        {
-            id: 10,
-            name: "Sylosis",
-            genre: "Thrash Metal, Progressive Metal",
-            rating: 7.6,
-            status: true,
-            theme: "Personal Struggles, Inner Turmoil",
-            country: "United Kingdom",
-            label: "Nuclear Blast",
-            link: "https://www.metal-archives.com/bands/Sylosis/35492",
-        },
-    ]);
+    const loadEntities = () => {
+        if (typeof window !== "undefined") {
+            const savedEntities = localStorage.getItem("entities");
+            if (savedEntities) {
+                return JSON.parse(savedEntities);
+            }
+        }
+        return [
+            {
+                id: 1,
+                name: "Fleshgod Apocalypse",
+                genre: "Technical Death Metal",
+                rating: 9.8,
+                status: true,
+                theme: "Philosophy",
+                country: "Italy",
+                label: "Nuclear Blast",
+                link: "https://www.metal-archives.com/bands/Fleshgod_Apocalypse/113185",
+            },
+            {
+                id: 2,
+                name: "Meshuggah",
+                genre: "Progressive Metal",
+                rating: 7.8,
+                status: true,
+                theme: "Mathematics, Human Nature",
+                country: "Sweden",
+                label: "Nuclear Blast",
+                link: "https://www.metal-archives.com/bands/Meshuggah/240",
+            },
+            {
+                id: 3,
+                name: "Opeth",
+                genre: "Progressive Death Metal",
+                rating: 9.5,
+                status: true,
+                theme: "Nature, Death, Mysticism",
+                country: "Sweden",
+                label: "Moderbolaget",
+                link: "https://www.metal-archives.com/bands/Opeth/755",
+            },
+            {
+                id: 4,
+                name: "Behemoth",
+                genre: "Blackened Death Metal",
+                rating: 8.7,
+                status: true,
+                theme: "Satanism, Anti-Christianity",
+                country: "Poland",
+                label: "Nuclear Blast",
+                link: "https://www.metal-archives.com/bands/Behemoth/605",
+            },
+            {
+                id: 5,
+                name: "Carcass",
+                genre: "Melodic Death Metal",
+                rating: 9.0,
+                status: true,
+                theme: "Gore, Medical Themes",
+                country: "United Kingdom",
+                label: "Nuclear Blast",
+                link: "https://www.metal-archives.com/bands/Carcass/188",
+            },
+            {
+                id: 6,
+                name: "Gojira",
+                genre: "Progressive Metal, Death Metal",
+                rating: 7.2,
+                status: true,
+                theme: "Environmentalism, Nature",
+                country: "France",
+                label: "Roadrunner Records",
+                link: "https://www.metal-archives.com/bands/Gojira/7815",
+            },
+            {
+                id: 7,
+                name: "Amon Amarth",
+                genre: "Melodic Death Metal",
+                rating: 8.9,
+                status: true,
+                theme: "Viking Mythology, Norse Mythology",
+                country: "Sweden",
+                label: "Metal Blade",
+                link: "https://www.metal-archives.com/bands/Amon_Amarth/739",
+            },
+            {
+                id: 8,
+                name: "Dark Tranquillity",
+                genre: "Melodic Death Metal",
+                rating: 9.9,
+                status: true,
+                theme: "Melancholy, War",
+                country: "Sweden",
+                label: "Century Media Records",
+                link: "https://www.metal-archives.com/bands/Dark_Tranquillity/149",
+            },
+            {
+                id: 9,
+                name: "Death",
+                genre: "Death Metal",
+                rating: 9.5,
+                status: false,
+                theme: "Philosophy, Death, Mental Struggles",
+                country: "United States",
+                label: "Relapse Records",
+                link: "https://www.metal-archives.com/bands/Death/70",
+            },
+            {
+                id: 10,
+                name: "Sylosis",
+                genre: "Thrash Metal, Progressive Metal",
+                rating: 7.6,
+                status: true,
+                theme: "Personal Struggles, Inner Turmoil",
+                country: "United Kingdom",
+                label: "Nuclear Blast",
+                link: "https://www.metal-archives.com/bands/Sylosis/35492",
+            },
+        ];
+    };
+
+    const [entities, setEntities] = useState<Entity[]>(loadEntities);
+
     
+    const saveEntitiesToStorage = (entities: Entity[]) => {
+        localStorage.setItem("entities", JSON.stringify(entities));
+    };
+
     const addEntity = (entity: Entity) => {
-        setEntities((prevEntities) => [...prevEntities, entity]);
+        setEntities((prevEntities) => {
+            const updatedEntities = [...prevEntities, entity];
+            saveEntitiesToStorage(updatedEntities);
+            return updatedEntities;
+        });
     };
 
     const deleteEntity = (id: number) => {
-        setEntities((prevEntities) => prevEntities.filter((entity) => entity.id !== id));
+        setEntities((prevEntities) => {
+            const updatedEntities = prevEntities.filter((entity) => entity.id !== id);
+            saveEntitiesToStorage(updatedEntities);
+            return updatedEntities;
+        });
     };
 
     const updateEntity = (id: number, updatedEntity: Entity) => {
-        setEntities((prevEntities) =>
-            prevEntities.map((entity) => (entity.id === id ? updatedEntity : entity))
-        );
+        setEntities((prevEntities) => {
+            const updatedEntities = prevEntities.map((entity) =>
+                entity.id === id ? updatedEntity : entity
+            );
+            saveEntitiesToStorage(updatedEntities);
+            return updatedEntities;
+        });
     };
 
     const calculateRatings = () => {
