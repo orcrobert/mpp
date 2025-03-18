@@ -1,4 +1,4 @@
-import { Table, Button, Flex, Checkbox } from "@chakra-ui/react";
+import { Table, Button, Box, Checkbox } from "@chakra-ui/react";
 import { useState, useMemo } from "react";
 import { useEntity } from "@/context/entity-context";
 import { useRouter } from "next/navigation";
@@ -145,7 +145,7 @@ export default function DataGrid({ entities }: Props) {
                 <Table.Body>
                     {filteredEntities.map((entity) => (
                         <Table.Row key={entity.id}>
-                            <Table.Cell>
+                            <Table.Cell paddingLeft={2}>
                                 <Checkbox.Root
                                     variant="solid"
                                     onChange={() => toggleRowSelection(entity.id)}
@@ -160,19 +160,19 @@ export default function DataGrid({ entities }: Props) {
                             <Table.Cell className={getRatingClass(entity)} fontWeight="bold">{entity.rating}</Table.Cell>
                             <Table.Cell>
                                 {entity.status ? (
-                                    <div className="bg-green-300 text-green-900 px-2 py-2 rounded-full text-xs text-center">
+                                    <Box className="bg-green-300 text-green-900" px={2} py={0} rounded="lg" textAlign="center" fontSize="xs">
                                         Active
-                                    </div>
+                                    </Box>
                                 ) : (
-                                    <div className="bg-red-300 text-red-900 px-2 py-2 rounded-full text-xs text-center">
+                                    <Box className="bg-red-300 text-red-900" px={2} py={0} rounded="lg" textAlign="center" fontSize="xs">
                                         Inactive
-                                    </div>
+                                    </Box>
                                 )}
                             </Table.Cell>
                             <Table.Cell>{entity.theme}</Table.Cell>
                             <Table.Cell>{entity.country}</Table.Cell>
                             <Table.Cell>{entity.label}</Table.Cell>
-                            <Table.Cell>
+                            <Table.Cell paddingRight={5}>
                                 <a
                                     href={entity.link}
                                     target="_blank"
