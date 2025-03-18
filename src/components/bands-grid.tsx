@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useEntity } from "@/context/entity-context";
 import { useRouter } from "next/navigation";
 import { toaster } from "./ui/toaster";
+import { SearchBox } from "./search-box";
 
 type Entity = {
     id: number;
@@ -20,7 +21,7 @@ type Props = {
 };
 
 const columns = [
-    { key: "select", label: "Select"},
+    { key: "select", label: "Select" },
     { key: "name", label: "Name" },
     { key: "genre", label: "Genre" },
     { key: "status", label: "Status" },
@@ -34,6 +35,7 @@ export default function DataGrid({ entities }: Props) {
 
     const { deleteEntity } = useEntity();
     const [selectedRows, setSelectedRows] = useState<number[]>([]);
+    const [searchQuery, setSearchQuery] = useState("");
     const router = useRouter();
 
     const toggleRowSelection = (id: number) => {
@@ -65,51 +67,60 @@ export default function DataGrid({ entities }: Props) {
 
     return (
         <div>
+            <SearchBox onSearch={setSearchQuery} />
             <Table.Root size="sm" striped marginBottom="5" marginTop="5">
                 <Table.Header>
                     <Table.Row>
                         {columns.map((column) => (
-                            <Table.ColumnHeader fontWeight="bold" key={column.key}>{column.label}</Table.ColumnHeader>
+                            <Table.ColumnHeader fontWeight="bold" key={column.key}>
+                                {column.label}
+                            </Table.ColumnHeader>
                         ))}
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                    {entities.map((entity) => (
-                        <Table.Row key={entity.id}>
-                            <Table.Cell>
-                                <Checkbox.Root variant={"solid"} onChange={() => toggleRowSelection(entity.id)} checked={selectedRows.includes(entity.id)}>
-                                    <Checkbox.HiddenInput />
-                                    <Checkbox.Control />
-                                </Checkbox.Root>
-                            </Table.Cell>
-                            <Table.Cell>{entity.name}</Table.Cell>
-                            <Table.Cell>{entity.genre}</Table.Cell>
-                            <Table.Cell>
-                                {entity.status ? (
-                                    <div className="bg-green-300 text-green-900 px-2 py-2 rounded-full text-xs text-center">
-                                        Active
-                                    </div>
-                                ) : (
-                                    <div className="bg-red-300 text-red-900 px-2 py-2 rounded-full text-xs text-center">
-                                        Inactive
-                                    </div>
-                                )}
-                            </Table.Cell>
-                            <Table.Cell>{entity.theme}</Table.Cell>
-                            <Table.Cell>{entity.country}</Table.Cell>
-                            <Table.Cell>{entity.label}</Table.Cell>
-                            <Table.Cell>
-                                <a
-                                    href={entity.link}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-blue-500 hover:underline"
-                                >
-                                    More
-                                </a>
-                            </Table.Cell>
-                        </Table.Row>
-                    ))}
+                    {entities
+                        .filter((entity) => entity.genre.toLowerCase().includes(searchQuery.toLowerCase()))
+                        .map((entity) => (
+                            <Table.Row key={entity.id}>
+                                <Table.Cell>
+                                    <Checkbox.Root
+                                        variant="solid"
+                                        onChange={() => toggleRowSelection(entity.id)}
+                                        checked={selectedRows.includes(entity.id)}
+                                    >
+                                        <Checkbox.HiddenInput />
+                                        <Checkbox.Control />
+                                    </Checkbox.Root>
+                                </Table.Cell>
+                                <Table.Cell>{entity.name}</Table.Cell>
+                                <Table.Cell>{entity.genre}</Table.Cell>
+                                <Table.Cell>
+                                    {entity.status ? (
+                                        <div className="bg-green-300 text-green-900 px-2 py-2 rounded-full text-xs text-center">
+                                            Active
+                                        </div>
+                                    ) : (
+                                        <div className="bg-red-300 text-red-900 px-2 py-2 rounded-full text-xs text-center">
+                                            Inactive
+                                        </div>
+                                    )}
+                                </Table.Cell>
+                                <Table.Cell>{entity.theme}</Table.Cell>
+                                <Table.Cell>{entity.country}</Table.Cell>
+                                <Table.Cell>{entity.label}</Table.Cell>
+                                <Table.Cell>
+                                    <a
+                                        href={entity.link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-500 hover:underline"
+                                    >
+                                        More
+                                    </a>
+                                </Table.Cell>
+                            </Table.Row>
+                        ))}
                 </Table.Body>
             </Table.Root>
             <div className="flex items-center justify-center gap-2 pt-12">
