@@ -1,14 +1,16 @@
 import { Table, Button, Flex, Checkbox } from "@chakra-ui/react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useEntity } from "@/context/entity-context";
 import { useRouter } from "next/navigation";
 import { toaster } from "./ui/toaster";
 import { SearchBox } from "./search-box";
+import { Input, Stack, Field, NativeSelect, Heading } from "@chakra-ui/react";
 
 type Entity = {
     id: number;
     name: string;
     genre: string;
+    rating: number;
     status: boolean;
     theme: string;
     country: string;
@@ -21,9 +23,10 @@ type Props = {
 };
 
 const columns = [
-    { key: "select", label: "Select" },
+    { key: "select", label: "" },
     { key: "name", label: "Name" },
     { key: "genre", label: "Genre" },
+    { key: "rating", label: "Rating" },
     { key: "status", label: "Status" },
     { key: "theme", label: "Lyrical Themes" },
     { key: "country", label: "Country" },
@@ -33,7 +36,7 @@ const columns = [
 
 export default function DataGrid({ entities }: Props) {
 
-    const { deleteEntity } = useEntity();
+    const { deleteEntity, topRated, averageRated, lowestRated } = useEntity();
     const [selectedRows, setSelectedRows] = useState<number[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [sortedEntities, setSortedEntities] = useState<Entity[]>(entities);
@@ -87,68 +90,100 @@ export default function DataGrid({ entities }: Props) {
         }
     };
 
+    const filteredEntities = useMemo(() => {
+        return sortedEntities.filter((entity) => {
+            const searchQueryLower = searchQuery.toLowerCase();
+            return (
+                entity.name.toLowerCase().includes(searchQueryLower) ||
+                entity.genre.toLowerCase().includes(searchQueryLower) ||
+                entity.rating.toString().includes(searchQueryLower) ||
+                entity.status.toString().toLowerCase().includes(searchQueryLower) ||
+                entity.theme.toLowerCase().includes(searchQueryLower) ||
+                entity.country.toLowerCase().includes(searchQueryLower) ||
+                entity.label.toLowerCase().includes(searchQueryLower) ||
+                entity.link.toLowerCase().includes(searchQueryLower)
+            );
+        });
+    }, [sortedEntities, searchQuery]);
+
+    const getRatingClass = (entity: Entity) => {
+        if (topRated?.id === entity.id) return "text-green-500";
+        if (lowestRated?.id === entity.id) return "text-red-500";
+        if (averageRated?.id === entity.id) return "text-yellow-500";
+        return "text-gray-100";
+    };
+
     return (
         <div>
             <SearchBox onSearch={setSearchQuery} />
             <Table.Root size="sm" striped marginBottom="5" marginTop="5">
                 <Table.Header>
                     <Table.Row>
-                        {columns.map((column) => (
-                            <Table.ColumnHeader
-                                key={column.key}
-                                fontWeight="bold"
-                                onClick={() => handleSort(column.key)}
-                                style={{ cursor: 'pointer' }}
-                            >
-                                {column.label}
-                                {sortConfig.key === column.key ? (sortConfig.direction === 'asc' ? ' 🔼' : ' 🔽') : ''}
-                            </Table.ColumnHeader>
-                        ))}
+                        {columns.map((column) => {
+                            if (column.key === 'select' || column.key === 'link') {
+                                return (
+                                    <Table.ColumnHeader key={column.key} fontWeight="bold">
+                                        {column.label}
+                                    </Table.ColumnHeader>
+                                );
+                            }
+
+                            return (
+                                <Table.ColumnHeader
+                                    key={column.key}
+                                    fontWeight="bold"
+                                    onClick={() => handleSort(column.key)}
+                                    style={{ cursor: 'pointer' }}
+                                >
+                                    {column.label}
+                                    {sortConfig.key === column.key ? (sortConfig.direction === 'asc' ? ' 🔼' : ' 🔽') : ''}
+                                </Table.ColumnHeader>
+                            );
+                        })}
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                    {sortedEntities
-                        .filter((entity) => entity.genre.toLowerCase().includes(searchQuery.toLowerCase()))
-                        .map((entity) => (
-                            <Table.Row key={entity.id}>
-                                <Table.Cell>
-                                    <Checkbox.Root
-                                        variant="solid"
-                                        onChange={() => toggleRowSelection(entity.id)}
-                                        checked={selectedRows.includes(entity.id)}
-                                    >
-                                        <Checkbox.HiddenInput />
-                                        <Checkbox.Control />
-                                    </Checkbox.Root>
-                                </Table.Cell>
-                                <Table.Cell>{entity.name}</Table.Cell>
-                                <Table.Cell>{entity.genre}</Table.Cell>
-                                <Table.Cell>
-                                    {entity.status ? (
-                                        <div className="bg-green-300 text-green-900 px-2 py-2 rounded-full text-xs text-center">
-                                            Active
-                                        </div>
-                                    ) : (
-                                        <div className="bg-red-300 text-red-900 px-2 py-2 rounded-full text-xs text-center">
-                                            Inactive
-                                        </div>
-                                    )}
-                                </Table.Cell>
-                                <Table.Cell>{entity.theme}</Table.Cell>
-                                <Table.Cell>{entity.country}</Table.Cell>
-                                <Table.Cell>{entity.label}</Table.Cell>
-                                <Table.Cell>
-                                    <a
-                                        href={entity.link}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-blue-500 hover:underline"
-                                    >
-                                        More
-                                    </a>
-                                </Table.Cell>
-                            </Table.Row>
-                        ))}
+                    {filteredEntities.map((entity) => (
+                        <Table.Row key={entity.id}>
+                            <Table.Cell>
+                                <Checkbox.Root
+                                    variant="solid"
+                                    onChange={() => toggleRowSelection(entity.id)}
+                                    checked={selectedRows.includes(entity.id)}
+                                >
+                                    <Checkbox.HiddenInput />
+                                    <Checkbox.Control />
+                                </Checkbox.Root>
+                            </Table.Cell>
+                            <Table.Cell>{entity.name}</Table.Cell>
+                            <Table.Cell>{entity.genre}</Table.Cell>
+                            <Table.Cell className={getRatingClass(entity)} fontWeight="bold">{entity.rating}</Table.Cell>
+                            <Table.Cell>
+                                {entity.status ? (
+                                    <div className="bg-green-300 text-green-900 px-2 py-2 rounded-full text-xs text-center">
+                                        Active
+                                    </div>
+                                ) : (
+                                    <div className="bg-red-300 text-red-900 px-2 py-2 rounded-full text-xs text-center">
+                                        Inactive
+                                    </div>
+                                )}
+                            </Table.Cell>
+                            <Table.Cell>{entity.theme}</Table.Cell>
+                            <Table.Cell>{entity.country}</Table.Cell>
+                            <Table.Cell>{entity.label}</Table.Cell>
+                            <Table.Cell>
+                                <a
+                                    href={entity.link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-500 hover:underline"
+                                >
+                                    More
+                                </a>
+                            </Table.Cell>
+                        </Table.Row>
+                    ))}
                 </Table.Body>
             </Table.Root>
             <div className="flex items-center justify-center gap-2 pt-12">
