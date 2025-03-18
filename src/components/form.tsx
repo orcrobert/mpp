@@ -4,14 +4,15 @@ import { useState, useEffect } from "react";
 import { Button, Input, Stack, Field, NativeSelect, Flex, Heading } from "@chakra-ui/react";
 
 type BandFormProps = {
-    onSubmit: (data: { name: string, genre: string, status: boolean, theme: string, country: string, label: string, link: string }) => void;
-    initialData?: { name: string, genre: string, status: boolean, theme: string, country: string, label: string, link: string };
+    onSubmit: (data: { name: string, genre: string, rating: number, status: boolean, theme: string, country: string, label: string, link: string }) => void;
+    initialData?: { name: string, genre: string, rating: number, status: boolean, theme: string, country: string, label: string, link: string };
     isUpdateMode?: boolean;
 };
 
-const BandForm = ({ onSubmit, initialData, isUpdateMode } : BandFormProps) => {
+const BandForm = ({ onSubmit, initialData, isUpdateMode }: BandFormProps) => {
     const [name, setName] = useState(initialData?.name || "");
     const [genre, setGenre] = useState(initialData?.genre || "");
+    const [rating, setRating] = useState(initialData?.rating || 0);
     const [status, setStatus] = useState(initialData?.status ?? true);
     const [theme, setTheme] = useState(initialData?.theme || "");
     const [country, setCountry] = useState(initialData?.country || "");
@@ -25,11 +26,12 @@ const BandForm = ({ onSubmit, initialData, isUpdateMode } : BandFormProps) => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!name || !genre || !theme || !country || !label || !link) return;
+        if (!name || !genre || !rating || !theme || !country || !label || !link) return;
 
         const newBand = {
             name,
             genre,
+            rating: parseFloat(rating.toString()),
             status,
             theme,
             country,
@@ -66,6 +68,19 @@ const BandForm = ({ onSubmit, initialData, isUpdateMode } : BandFormProps) => {
                             placeholder={isUpdateMode ? "Change the genre" : "Genre"}
                         />
                         <Field.HelperText>{isUpdateMode ? "Change the band's genre." : "Enter the band's genre."}</Field.HelperText>
+                    </Field.Root>
+
+                    <Field.Root required>
+                        <Input 
+                            value={rating} 
+                            onChange={(e) => setRating(parseFloat(e.target.value) || 0)} 
+                            type="number" 
+                            step="0.1" 
+                            min="0" 
+                            max="10" 
+                            placeholder="Rating (0-10)" 
+                        />
+                        <Field.HelperText>Enter the band's rating (0-10).</Field.HelperText>
                     </Field.Root>
 
                     <Field.Root required>
