@@ -186,11 +186,11 @@ export default function DataGrid({ entities }: Props) {
                     ))}
                 </Table.Body>
             </Table.Root>
-            <div className="flex items-center justify-center gap-2 pt-12">
-                <Button colorPalette="red" size="xs" onClick={handleDelete} disabled={selectedRows.length === 0}>
+            <div className="flex items-center justify-center gap-4 pt-12">
+                <Button borderRadius={8} colorPalette="red" backgroundColor="red.500" size="xs" onClick={handleDelete} disabled={selectedRows.length === 0}>
                     Delete Selected
                 </Button>
-                <Button colorPalette="blue" size="xs" onClick={handleUpdate} disabled={selectedRows.length !== 1}>
+                <Button borderRadius={8} colorPalette="blue" backgroundColor="blue.500" size="xs" onClick={handleUpdate} disabled={selectedRows.length !== 1}>
                     Update Selected
                 </Button>
             </div>
