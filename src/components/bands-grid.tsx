@@ -107,9 +107,9 @@ export default function DataGrid({ entities }: Props) {
     }, [sortedEntities, searchQuery]);
 
     const getRatingClass = (entity: Entity) => {
-        if (topRated?.id === entity.id) return "text-green-500";
-        if (lowestRated?.id === entity.id) return "text-red-500";
-        if (averageRated?.id === entity.id) return "text-yellow-500";
+        if (topRated?.id === entity.id) return "text-green-400";
+        if (lowestRated?.id === entity.id) return "text-red-400";
+        if (averageRated?.id === entity.id) return "text-yellow-400";
         return "text-gray-100";
     };
 
@@ -157,7 +157,7 @@ export default function DataGrid({ entities }: Props) {
                             </Table.Cell>
                             <Table.Cell>{entity.name}</Table.Cell>
                             <Table.Cell>{entity.genre}</Table.Cell>
-                            <Table.Cell className={getRatingClass(entity)} fontWeight="bold">{entity.rating}</Table.Cell>
+                            <Table.Cell className={getRatingClass(entity)} fontWeight="black">{entity.rating}</Table.Cell>
                             <Table.Cell>
                                 {entity.status ? (
                                     <Box className="bg-green-300 text-green-900" px={2} py={0} rounded="lg" textAlign="center" fontSize="xs">
