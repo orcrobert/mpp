@@ -28,6 +28,7 @@ type EntityContextType = {
     topRated: Entity | null;
     averageRated: Entity | null;
     lowestRated: Entity | null;
+    chartData: ChartData;
 };
 
 const EntityContext = createContext<EntityContextType | undefined>(undefined);
@@ -238,7 +239,7 @@ export function EntityProvider({ children }: { children: ReactNode }) {
     }, [entities]);
 
     return (
-        <EntityContext.Provider value={{ entities, addEntity, deleteEntity, updateEntity, topRated, averageRated, lowestRated }}>
+        <EntityContext.Provider value={{ entities, addEntity, deleteEntity, updateEntity, topRated, averageRated, lowestRated, chartData }}>
             {children}
         </EntityContext.Provider>
     );
