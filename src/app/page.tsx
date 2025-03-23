@@ -10,6 +10,7 @@ import Footer from "@/components/footer";
 import { useState } from "react";
 import AddBandPage from "./add-band/page";
 import { useEntity } from "@/context/entity-context";
+import ChartsPage from "./chart-page/page";
 
 export default function Home() {
 
