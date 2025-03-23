@@ -18,7 +18,7 @@ export default function UpdateBandPage() {
     const bandId = Array.isArray(id) ? Number(id[0]) : Number(id);
     const bandToUpdate = entities.find(entity => entity.id === bandId);
 
-    const handleUpdateBand = (bandData: { name: string, genre: string, status: boolean, theme: string, country: string, label: string, link: string }) => {
+    const handleUpdateBand = (bandData: { name: string, genre: string, rating: number, status: boolean, theme: string, country: string, label: string, link: string }) => {
         if (!bandToUpdate) return;
 
         const updatedBand = { ...bandToUpdate, ...bandData };

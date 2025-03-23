@@ -4,6 +4,8 @@ import { useEntity } from "@/context/entity-context";
 import { Bar, Line, Pie } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, LineElement, PointElement, ArcElement } from "chart.js";
 
+import { Flex, Heading } from "@chakra-ui/react";
+
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -57,8 +59,13 @@ const ChartsPage = () => {
     };
 
     return (
-        <div style={{ padding: "20px" }}>
-            <h1>Charts</h1>
+        <Flex
+            direction="column"
+            align="center"
+            justify="center"
+            marginTop={16}
+        >
+            <Heading marginBottom={10} fontSize="3xl" fontWeight="black">Charts</Heading>
 
             <div style={{ width: "50%", marginBottom: "40px" }}>
                 <h2>Genre Distribution</h2>
@@ -74,7 +81,7 @@ const ChartsPage = () => {
                 <h2>Top Rated Entities</h2>
                 <Pie data={topRatedEntitiesData} />
             </div>
-        </div>
+        </Flex>
     );
 };
 

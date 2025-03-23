@@ -9,7 +9,7 @@ export default function AddBandPage() {
     const { addEntity } = useEntity();
     const router = useRouter();
 
-    const handleAddBand = (bandData: { name: string, genre: string, status: boolean, theme: string, country: string, label: string, link: string }) => {
+    const handleAddBand = (bandData: { name: string, genre: string, rating: number, status: boolean, theme: string, country: string, label: string, link: string }) => {
         const newBand = {
             id: Date.now(),
             ...bandData,
