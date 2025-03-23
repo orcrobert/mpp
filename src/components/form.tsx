@@ -51,7 +51,7 @@ const BandForm = ({ onSubmit, initialData, isUpdateMode }: BandFormProps) => {
         >
             <Heading marginBottom={10} fontSize="3xl" fontWeight="black">{isUpdateMode ? "Update Band" : "Add band"}</Heading>
             <form onSubmit={handleSubmit}>
-                <Stack gap={4}>
+                <Stack gap={4} width={350}>
                     <Field.Root required>
                         <Input
                             value={name}

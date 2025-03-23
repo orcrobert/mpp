@@ -11,9 +11,10 @@ const Header = () => {
                     alt="Description of the image"
                     width={1500}
                     height={1300}
-                    className="object-cover filter brightness-30"
+                    className="object-cover filter brightness-70"
                 />
-                <div className="bg-red-600 blur-3xl h-0 w-200 absolute -z-10 transition-all duration-1500 group-hover:[w-256px] group-hover:h-[250px]"></div>
+                <div className="bg-red-600 blur-2xl h-0 w-220 absolute -z-10 transition-all duration-1500 group-hover:[w-256px] group-hover:h-[250px]"></div>
+                <div className="bg-black blur-2xl h-30 w-70 absolute z-0 rounded-3xl"></div>
 
                 <div className="absolute">
                     <Heading textStyle="4xl" fontWeight="black"
