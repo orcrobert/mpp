@@ -14,6 +14,12 @@ type Entity = {
     link: string;
 };
 
+type ChartData = {
+    genreDistribution: { name: string; value: number }[];
+    ratingsDistribution: { rating: number; count: number }[];
+    topRatedEntities: { name: string; rating: number }[];
+};
+
 type EntityContextType = {
     entities: Entity[];
     addEntity: (entity: Entity) => void;
@@ -30,6 +36,11 @@ export function EntityProvider({ children }: { children: ReactNode }) {
     const [topRated, setTopRated] = useState<Entity | null>(null);
     const [averageRated, setAverageRated] = useState<Entity | null>(null);
     const [lowestRated, setLowestRated] = useState<Entity | null>(null);
+    const [chartData, setChartData] = useState<ChartData>({
+        genreDistribution: [],
+        ratingsDistribution: [],
+        topRatedEntities: [],
+    });
 
     const [entities, setEntities] = useState<Entity[]>([
         {
@@ -158,30 +169,72 @@ export function EntityProvider({ children }: { children: ReactNode }) {
         );
     };
 
-    const calculateRatings = () => {
-        if (entities.length === 0) {
-            setTopRated(null);
-            setAverageRated(null);
-            setLowestRated(null);
-            return;
-        }
+    const calculateRatings = async () => {
+        return new Promise<void>((resolve) => {
+            setTimeout(() => {
+                if (entities.length === 0) {
+                    setTopRated(null);
+                    setAverageRated(null);
+                    setLowestRated(null);
+                    resolve();
+                    return;
+                }
 
-        const sortedEntities = [...entities].sort((a, b) => b.rating - a.rating);
-        const top = sortedEntities[0];
-        const bottom = sortedEntities[sortedEntities.length - 1];
+                const sortedEntities = [...entities].sort((a, b) => b.rating - a.rating);
+                const top = sortedEntities[0];
+                const bottom = sortedEntities[sortedEntities.length - 1];
 
-        const avgRating = entities.reduce((sum, entity) => sum + entity.rating, 0) / entities.length;
-        const closestToAvg = sortedEntities.reduce((prev, curr) =>
-            Math.abs(curr.rating - avgRating) < Math.abs(prev.rating - avgRating) ? curr : prev
-        );
+                const avgRating = entities.reduce((sum, entity) => sum + entity.rating, 0) / entities.length;
+                const closestToAvg = sortedEntities.reduce((prev, curr) =>
+                    Math.abs(curr.rating - avgRating) < Math.abs(prev.rating - avgRating) ? curr : prev
+                );
 
-        setTopRated(top);
-        setLowestRated(bottom);
-        setAverageRated(closestToAvg);
+                setTopRated(top);
+                setLowestRated(bottom);
+                setAverageRated(closestToAvg);
+                resolve();
+            }, 1000);
+        });
+    };
+
+    const calculateChartData = async () => {
+        return new Promise<void>((resolve) => {
+            setTimeout(() => {
+                const genreCounts: { [key: string]: number } = {};
+                const ratingCounts: { [key: number]: number } = {};
+            
+                entities.forEach((entity) => {
+                    genreCounts[entity.genre] = (genreCounts[entity.genre] || 0) + 1;
+            
+                    const roundedRating = Math.round(entity.rating);
+                    ratingCounts[roundedRating] = (ratingCounts[roundedRating] || 0) + 1;
+                });
+            
+                const genreDistribution = Object.entries(genreCounts).map(([name, value]) => ({ name, value }));
+            
+                const ratingsDistribution = Object.entries(ratingCounts).map(([rating, count]) => ({
+                    rating: parseInt(rating),
+                    count,
+                }));
+            
+                const topRatedEntities = [...entities]
+                    .sort((a, b) => b.rating - a.rating)
+                    .slice(0, 5)
+                    .map((entity) => ({ name: entity.name, rating: entity.rating }));
+            
+                setChartData({ genreDistribution, ratingsDistribution, topRatedEntities });
+                resolve();
+            }, 1000);
+        });
     };
 
     useEffect(() => {
-        calculateRatings();
+        const updateData = async () => {
+            await calculateRatings();
+            await calculateChartData();
+        };
+        
+        updateData();
     }, [entities]);
 
     return (
