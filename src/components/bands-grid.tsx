@@ -22,25 +22,15 @@ type Props = {
     entities: Entity[];
 };
 
-const columns = [
-    { key: "select", label: "" },
-    { key: "name", label: "Name" },
-    { key: "genre", label: "Genre" },
-    { key: "rating", label: "Rating" },
-    { key: "status", label: "Status" },
-    { key: "theme", label: "Lyrical Themes" },
-    { key: "country", label: "Country" },
-    { key: "label", label: "Label" },
-    { key: "link", label: "Link" },
-];
+const ITEMS_PER_PAGE = 8;
 
 export default function DataGrid({ entities }: Props) {
-
     const { deleteEntity, topRated, averageRated, lowestRated } = useEntity();
     const [selectedRows, setSelectedRows] = useState<number[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [sortedEntities, setSortedEntities] = useState<Entity[]>(entities);
     const [sortConfig, setSortConfig] = useState({ key: '', direction: 'asc' });
+    const [currentPage, setCurrentPage] = useState(1);
     const router = useRouter();
 
     const handleSort = (columnKey: string) => {
@@ -113,37 +103,28 @@ export default function DataGrid({ entities }: Props) {
         return "text-gray-100";
     };
 
+    const totalPages = Math.ceil(filteredEntities.length / ITEMS_PER_PAGE);
+    const paginatedEntities = filteredEntities.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
     return (
         <div>
             <SearchBox onSearch={setSearchQuery} />
             <Table.Root size="sm" striped marginBottom="5" marginTop="5">
                 <Table.Header>
                     <Table.Row>
-                        {columns.map((column) => {
-                            if (column.key === 'select' || column.key === 'link') {
-                                return (
-                                    <Table.ColumnHeader key={column.key} fontWeight="bold">
-                                        {column.label}
-                                    </Table.ColumnHeader>
-                                );
-                            }
-
-                            return (
-                                <Table.ColumnHeader
-                                    key={column.key}
-                                    fontWeight="bold"
-                                    onClick={() => handleSort(column.key)}
-                                    style={{ cursor: 'pointer' }}
-                                >
-                                    {column.label}
-                                    {sortConfig.key === column.key ? (sortConfig.direction === 'asc' ? ' 🔼' : ' 🔽') : ''}
-                                </Table.ColumnHeader>
-                            );
-                        })}
+                        <Table.ColumnHeader key="select" fontWeight="bold"> </Table.ColumnHeader>
+                        <Table.ColumnHeader key="name" fontWeight="bold" onClick={() => handleSort("name")}>Name</Table.ColumnHeader>
+                        <Table.ColumnHeader key="genre" fontWeight="bold" onClick={() => handleSort("genre")}>Genre</Table.ColumnHeader>
+                        <Table.ColumnHeader key="rating" fontWeight="bold" onClick={() => handleSort("rating")}>Rating</Table.ColumnHeader>
+                        <Table.ColumnHeader key="status" fontWeight="bold">Status</Table.ColumnHeader>
+                        <Table.ColumnHeader key="theme" fontWeight="bold">Lyrical Themes</Table.ColumnHeader>
+                        <Table.ColumnHeader key="country" fontWeight="bold">Country</Table.ColumnHeader>
+                        <Table.ColumnHeader key="label" fontWeight="bold">Label</Table.ColumnHeader>
+                        <Table.ColumnHeader key="link" fontWeight="bold">Link</Table.ColumnHeader>
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                    {filteredEntities.map((entity) => (
+                    {paginatedEntities.map((entity) => (
                         <Table.Row key={entity.id}>
                             <Table.Cell paddingLeft={2}>
                                 <Checkbox.Root
@@ -172,13 +153,8 @@ export default function DataGrid({ entities }: Props) {
                             <Table.Cell>{entity.theme}</Table.Cell>
                             <Table.Cell>{entity.country}</Table.Cell>
                             <Table.Cell>{entity.label}</Table.Cell>
-                            <Table.Cell paddingRight={5}>
-                                <a
-                                    href={entity.link}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-blue-500 hover:underline"
-                                >
+                            <Table.Cell>
+                                <a href={entity.link} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
                                     More
                                 </a>
                             </Table.Cell>
@@ -186,10 +162,20 @@ export default function DataGrid({ entities }: Props) {
                     ))}
                 </Table.Body>
             </Table.Root>
-            <div className="flex items-center justify-center gap-4 pt-12">
+            
+            <div className="flex justify-between gap-4 mt-4">
                 <Button borderRadius={8} colorPalette="red" backgroundColor="red.500" size="xs" onClick={handleDelete} disabled={selectedRows.length === 0}>
                     Delete Selected
                 </Button>
+                <div className="flex justify-center gap-4 mt-4">
+                    <Button size="xs" rounded="xl" p={2} onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1}>
+                        Prev
+                    </Button>
+                    <span>Page {currentPage} of {totalPages}</span>
+                    <Button size="xs" rounded="xl" p={2} onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages}>
+                        Next
+                    </Button>
+                </div>
                 <Button borderRadius={8} colorPalette="blue" backgroundColor="blue.500" size="xs" onClick={handleUpdate} disabled={selectedRows.length !== 1}>
                     Update Selected
                 </Button>
