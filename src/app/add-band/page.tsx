@@ -14,6 +14,7 @@ export default function AddBandPage() {
             id: Date.now(),
             ...bandData,
         };
+        
         addEntity(newBand);
         toaster.create({
             title: "Band Added",
