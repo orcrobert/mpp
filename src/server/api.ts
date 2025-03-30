@@ -3,9 +3,13 @@ import cors from "cors";
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3001', // or whatever your front-end URL is
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+}));
 
 const PORT = process.env.PORT || 3000;
+
 
 type Entity = {
   id: number;
