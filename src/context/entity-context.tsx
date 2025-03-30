@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
-type Entity = {
+export type Entity = {
     id: number;
     name: string;
     genre: string;
@@ -14,7 +14,7 @@ type Entity = {
     link: string;
 };
 
-type ChartData = {
+export type ChartData = {
     genreDistribution: { name: string; value: number }[];
     ratingsDistribution: { rating: number; count: number }[];
     topRatedEntities: { name: string; rating: number }[];
@@ -22,18 +22,20 @@ type ChartData = {
 
 type EntityContextType = {
     entities: Entity[];
-    addEntity: (entity: Entity) => void;
-    deleteEntity: (id: number) => void;
-    updateEntity: (id: number, updatedEntity: Entity) => void;
+    addEntity: (entity: Omit<Entity, "id">) => Promise<void>;
+    deleteEntity: (id: number) => Promise<void>;
+    updateEntity: (id: number, updatedEntity: Partial<Entity>) => Promise<void>;
     topRated: Entity | null;
     averageRated: Entity | null;
     lowestRated: Entity | null;
     chartData: ChartData;
+    refreshEntities: () => Promise<void>;
 };
 
 const EntityContext = createContext<EntityContextType | undefined>(undefined);
 
 export function EntityProvider({ children }: { children: ReactNode }) {
+    const [entities, setEntities] = useState<Entity[]>([]);
     const [topRated, setTopRated] = useState<Entity | null>(null);
     const [averageRated, setAverageRated] = useState<Entity | null>(null);
     const [lowestRated, setLowestRated] = useState<Entity | null>(null);
@@ -43,230 +45,133 @@ export function EntityProvider({ children }: { children: ReactNode }) {
         topRatedEntities: [],
     });
 
-    const loadEntities = () => {
-        if (typeof window !== "undefined") {
-            const savedEntities = localStorage.getItem("entities");
-            if (savedEntities) {
-                return JSON.parse(savedEntities);
-            }
+    const API_URL = "http://localhost:3000/entities";
+
+    const refreshEntities = async () => {
+        try {
+            const res = await fetch(API_URL);
+            const data = await res.json();
+            setEntities(data);
+        } catch (error) {
+            console.error("Failed to fetch entities", error);
         }
-        return [
-            {
-                id: 1,
-                name: "Fleshgod Apocalypse",
-                genre: "Technical Death Metal",
-                rating: 9.8,
-                status: true,
-                theme: "Philosophy",
-                country: "Italy",
-                label: "Nuclear Blast",
-                link: "https://www.metal-archives.com/bands/Fleshgod_Apocalypse/113185",
-            },
-            {
-                id: 2,
-                name: "Meshuggah",
-                genre: "Progressive Metal",
-                rating: 7.8,
-                status: true,
-                theme: "Mathematics, Human Nature",
-                country: "Sweden",
-                label: "Nuclear Blast",
-                link: "https://www.metal-archives.com/bands/Meshuggah/240",
-            },
-            {
-                id: 3,
-                name: "Opeth",
-                genre: "Progressive Death Metal",
-                rating: 9.5,
-                status: true,
-                theme: "Nature, Death, Mysticism",
-                country: "Sweden",
-                label: "Moderbolaget",
-                link: "https://www.metal-archives.com/bands/Opeth/755",
-            },
-            {
-                id: 4,
-                name: "Behemoth",
-                genre: "Blackened Death Metal",
-                rating: 8.7,
-                status: true,
-                theme: "Satanism, Anti-Christianity",
-                country: "Poland",
-                label: "Nuclear Blast",
-                link: "https://www.metal-archives.com/bands/Behemoth/605",
-            },
-            {
-                id: 5,
-                name: "Carcass",
-                genre: "Melodic Death Metal",
-                rating: 9.0,
-                status: true,
-                theme: "Gore, Medical Themes",
-                country: "United Kingdom",
-                label: "Nuclear Blast",
-                link: "https://www.metal-archives.com/bands/Carcass/188",
-            },
-            {
-                id: 6,
-                name: "Gojira",
-                genre: "Progressive Metal, Death Metal",
-                rating: 7.2,
-                status: true,
-                theme: "Environmentalism, Nature",
-                country: "France",
-                label: "Roadrunner Records",
-                link: "https://www.metal-archives.com/bands/Gojira/7815",
-            },
-            {
-                id: 7,
-                name: "Amon Amarth",
-                genre: "Melodic Death Metal",
-                rating: 8.9,
-                status: true,
-                theme: "Viking Mythology, Norse Mythology",
-                country: "Sweden",
-                label: "Metal Blade",
-                link: "https://www.metal-archives.com/bands/Amon_Amarth/739",
-            },
-            {
-                id: 8,
-                name: "Dark Tranquillity",
-                genre: "Melodic Death Metal",
-                rating: 9.9,
-                status: true,
-                theme: "Melancholy, War",
-                country: "Sweden",
-                label: "Century Media Records",
-                link: "https://www.metal-archives.com/bands/Dark_Tranquillity/149",
-            },
-            {
-                id: 9,
-                name: "Death",
-                genre: "Death Metal",
-                rating: 9.5,
-                status: false,
-                theme: "Philosophy, Death, Mental Struggles",
-                country: "United States",
-                label: "Relapse Records",
-                link: "https://www.metal-archives.com/bands/Death/70",
-            },
-            {
-                id: 10,
-                name: "Sylosis",
-                genre: "Thrash Metal, Progressive Metal",
-                rating: 7.6,
-                status: true,
-                theme: "Personal Struggles, Inner Turmoil",
-                country: "United Kingdom",
-                label: "Nuclear Blast",
-                link: "https://www.metal-archives.com/bands/Sylosis/35492",
-            },
-        ];
-    };
-
-    const [entities, setEntities] = useState<Entity[]>(loadEntities);
-
-    
-    const saveEntitiesToStorage = (entities: Entity[]) => {
-        localStorage.setItem("entities", JSON.stringify(entities));
-    };
-
-    const addEntity = (entity: Entity) => {
-        setEntities((prevEntities) => {
-            const updatedEntities = [...prevEntities, entity];
-            saveEntitiesToStorage(updatedEntities);
-            return updatedEntities;
-        });
-    };
-
-    const deleteEntity = (id: number) => {
-        setEntities((prevEntities) => {
-            const updatedEntities = prevEntities.filter((entity) => entity.id !== id);
-            saveEntitiesToStorage(updatedEntities);
-            return updatedEntities;
-        });
-    };
-
-    const updateEntity = (id: number, updatedEntity: Entity) => {
-        setEntities((prevEntities) => {
-            const updatedEntities = prevEntities.map((entity) =>
-                entity.id === id ? updatedEntity : entity
-            );
-            saveEntitiesToStorage(updatedEntities);
-            return updatedEntities;
-        });
-    };
-
-    const calculateRatings = async () => {
-        return new Promise<void>((resolve) => {
-            setTimeout(() => {
-                if (entities.length === 0) {
-                    setTopRated(null);
-                    setAverageRated(null);
-                    setLowestRated(null);
-                    resolve();
-                    return;
-                }
-
-                const sortedEntities = [...entities].sort((a, b) => b.rating - a.rating);
-                const top = sortedEntities[0];
-                const bottom = sortedEntities[sortedEntities.length - 1];
-
-                const avgRating = entities.reduce((sum, entity) => sum + entity.rating, 0) / entities.length;
-                const closestToAvg = sortedEntities.reduce((prev, curr) =>
-                    Math.abs(curr.rating - avgRating) < Math.abs(prev.rating - avgRating) ? curr : prev
-                );
-
-                setTopRated(top);
-                setLowestRated(bottom);
-                setAverageRated(closestToAvg);
-                resolve();
-            }, 1000);
-        });
-    };
-
-    const calculateChartData = async () => {
-        return new Promise<void>((resolve) => {
-            setTimeout(() => {
-                const genreCounts: { [key: string]: number } = {};
-                const ratingCounts: { [key: number]: number } = {};
-            
-                entities.forEach((entity) => {
-                    genreCounts[entity.genre] = (genreCounts[entity.genre] || 0) + 1;
-            
-                    const roundedRating = Math.round(entity.rating);
-                    ratingCounts[roundedRating] = (ratingCounts[roundedRating] || 0) + 1;
-                });
-            
-                const genreDistribution = Object.entries(genreCounts).map(([name, value]) => ({ name, value }));
-            
-                const ratingsDistribution = Object.entries(ratingCounts).map(([rating, count]) => ({
-                    rating: parseInt(rating),
-                    count,
-                }));
-            
-                const topRatedEntities = [...entities]
-                    .sort((a, b) => b.rating - a.rating)
-                    .slice(0, 5)
-                    .map((entity) => ({ name: entity.name, rating: entity.rating }));
-            
-                setChartData({ genreDistribution, ratingsDistribution, topRatedEntities });
-                resolve();
-            }, 1000);
-        });
     };
 
     useEffect(() => {
-        const updateData = async () => {
-            await calculateRatings();
-            await calculateChartData();
-        };
-        
-        updateData();
+        refreshEntities();
+    }, []);
+
+    const calculateRatings = () => {
+        if (entities.length === 0) {
+            setTopRated(null);
+            setAverageRated(null);
+            setLowestRated(null);
+            return;
+        }
+
+        const sortedEntities = [...entities].sort((a, b) => b.rating - a.rating);
+        const top = sortedEntities[0];
+        const bottom = sortedEntities[sortedEntities.length - 1];
+
+        const avgRating = entities.reduce((sum, entity) => sum + entity.rating, 0) / entities.length;
+        const closestToAvg = sortedEntities.reduce((prev, curr) =>
+            Math.abs(curr.rating - avgRating) < Math.abs(prev.rating - avgRating)
+                ? curr
+                : prev
+        );
+
+        setTopRated(top);
+        setLowestRated(bottom);
+        setAverageRated(closestToAvg);
+    };
+
+    const calculateChartData = () => {
+        const genreCounts: { [key: string]: number } = {};
+        const ratingCounts: { [key: number]: number } = {};
+
+        entities.forEach((entity) => {
+            genreCounts[entity.genre] = (genreCounts[entity.genre] || 0) + 1;
+            const roundedRating = Math.round(entity.rating);
+            ratingCounts[roundedRating] = (ratingCounts[roundedRating] || 0) + 1;
+        });
+
+        const genreDistribution = Object.entries(genreCounts).map(([name, value]) => ({ name, value }));
+        const ratingsDistribution = Object.entries(ratingCounts).map(([rating, count]) => ({
+            rating: parseInt(rating),
+            count,
+        }));
+
+        const topRatedEntities = [...entities].sort((a, b) => b.rating - a.rating).slice(0, 5).map((entity) => ({ name: entity.name, rating: entity.rating }));
+
+        setChartData({ genreDistribution, ratingsDistribution, topRatedEntities });
+    };
+
+    useEffect(() => {
+        calculateRatings();
+        calculateChartData();
     }, [entities]);
 
+    const addEntity = async (entity: Omit<Entity, "id">) => {
+        try {
+            const res = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(entity),
+            });
+            if (res.ok) {
+                await refreshEntities();
+            } else {
+                console.error(await res.text());
+            }
+        } catch (error) {
+            console.error("Failed to add entity", error);
+        }
+    };
+
+    const deleteEntity = async (id: number) => {
+        try {
+            const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+            if (res.ok) {
+                await refreshEntities();
+            } else {
+                console.error(await res.text());
+            }
+        } catch (error) {
+            console.error("Failed to delete entity", error);
+        }
+    };
+
+    const updateEntity = async (id: number, updatedEntity: Partial<Entity>) => {
+        try {
+            const res = await fetch(`${API_URL}/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(updatedEntity),
+            });
+            if (res.ok) {
+                await refreshEntities();
+            } else {
+                console.error(await res.text());
+            }
+        } catch (error) {
+            console.error("Failed to update entity", error);
+        }
+    };
+
     return (
-        <EntityContext.Provider value={{ entities, addEntity, deleteEntity, updateEntity, topRated, averageRated, lowestRated, chartData }}>
+        <EntityContext.Provider
+            value={{
+                entities,
+                addEntity,
+                deleteEntity,
+                updateEntity,
+                topRated,
+                averageRated,
+                lowestRated,
+                chartData,
+                refreshEntities,
+            }}
+        >
             {children}
         </EntityContext.Provider>
     );
