@@ -6,16 +6,19 @@ import BandForm from "@/components/form";
 import { toaster } from "@/components/ui/toaster"
 
 export default function AddBandPage() {
-    const { addEntity } = useEntity();
+    const { addEntity, refreshEntities } = useEntity();
     const router = useRouter();
 
-    const handleAddBand = (bandData: { name: string, genre: string, rating: number, status: boolean, theme: string, country: string, label: string, link: string }) => {
+    const handleAddBand = async (bandData: { name: string, genre: string, rating: number, status: boolean, theme: string, country: string, label: string, link: string }) => {
         const newBand = {
             id: Date.now(),
             ...bandData,
         };
         
-        addEntity(newBand);
+        await addEntity(newBand);
+
+        refreshEntities();
+
         toaster.create({
             title: "Band Added",
             description: "The band has been added successfully.",
