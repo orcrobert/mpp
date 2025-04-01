@@ -4,12 +4,19 @@ import cors from "cors";
 const app = express();
 app.use(express.json());
 app.use(cors({
-  origin: 'http://localhost:3001', // or whatever your front-end URL is
+  origin: 'http://localhost:3001',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
 
 const PORT = process.env.PORT || 3000;
 
+export type FetchEntitiesParams = {
+  search?: string;
+  sort?: keyof Entity;
+  order?: "asc" | "desc";
+  page?: number;
+  limit?: number;
+};
 
 type Entity = {
   id: number;
@@ -24,120 +31,50 @@ type Entity = {
 };
 
 let entities: Entity[] = [
-  {
-    id: 1,
-    name: "Fleshgod Apocalypse",
-    genre: "Technical Death Metal",
-    rating: 9.8,
-    status: true,
-    theme: "Philosophy",
-    country: "Italy",
-    label: "Nuclear Blast",
-    link: "https://www.metal-archives.com/bands/Fleshgod_Apocalypse/113185",
-  },
-  {
-    id: 2,
-    name: "Meshuggah",
-    genre: "Progressive Metal",
-    rating: 7.8,
-    status: true,
-    theme: "Mathematics, Human Nature",
-    country: "Sweden",
-    label: "Nuclear Blast",
-    link: "https://www.metal-archives.com/bands/Meshuggah/240",
-  },
-  {
-    id: 3,
-    name: "Opeth",
-    genre: "Progressive Death Metal",
-    rating: 9.5,
-    status: true,
-    theme: "Nature, Death, Mysticism",
-    country: "Sweden",
-    label: "Moderbolaget",
-    link: "https://www.metal-archives.com/bands/Opeth/755",
-  },
-  {
-    id: 4,
-    name: "Behemoth",
-    genre: "Blackened Death Metal",
-    rating: 8.7,
-    status: true,
-    theme: "Satanism, Anti-Christianity",
-    country: "Poland",
-    label: "Nuclear Blast",
-    link: "https://www.metal-archives.com/bands/Behemoth/605",
-  },
-  {
-    id: 5,
-    name: "Carcass",
-    genre: "Melodic Death Metal",
-    rating: 9.0,
-    status: true,
-    theme: "Gore, Medical Themes",
-    country: "United Kingdom",
-    label: "Nuclear Blast",
-    link: "https://www.metal-archives.com/bands/Carcass/188",
-  },
-  {
-    id: 6,
-    name: "Gojira",
-    genre: "Progressive Metal, Death Metal",
-    rating: 7.2,
-    status: true,
-    theme: "Environmentalism, Nature",
-    country: "France",
-    label: "Roadrunner Records",
-    link: "https://www.metal-archives.com/bands/Gojira/7815",
-  },
-  {
-    id: 7,
-    name: "Amon Amarth",
-    genre: "Melodic Death Metal",
-    rating: 8.9,
-    status: true,
-    theme: "Viking Mythology, Norse Mythology",
-    country: "Sweden",
-    label: "Metal Blade",
-    link: "https://www.metal-archives.com/bands/Amon_Amarth/739",
-  },
-  {
-    id: 8,
-    name: "Dark Tranquillity",
-    genre: "Melodic Death Metal",
-    rating: 9.9,
-    status: true,
-    theme: "Melancholy, War",
-    country: "Sweden",
-    label: "Century Media Records",
-    link: "https://www.metal-archives.com/bands/Dark_Tranquillity/149",
-  },
-  {
-    id: 9,
-    name: "Death",
-    genre: "Death Metal",
-    rating: 9.5,
-    status: false,
-    theme: "Philosophy, Death, Mental Struggles",
-    country: "United States",
-    label: "Relapse Records",
-    link: "https://www.metal-archives.com/bands/Death/70",
-  },
-  {
-    id: 10,
-    name: "Sylosis",
-    genre: "Thrash Metal, Progressive Metal",
-    rating: 7.6,
-    status: true,
-    theme: "Personal Struggles, Inner Turmoil",
-    country: "United Kingdom",
-    label: "Nuclear Blast",
-    link: "https://www.metal-archives.com/bands/Sylosis/35492",
-  },
+  { id: 1, name: "Fleshgod Apocalypse", genre: "Technical Death Metal", rating: 9.8, status: true, theme: "Philosophy", country: "Italy", label: "Nuclear Blast", link: "https://www.metal-archives.com/bands/Fleshgod_Apocalypse/113185" },
+  { id: 2, name: "Meshuggah", genre: "Progressive Metal", rating: 7.8, status: true, theme: "Mathematics, Human Nature", country: "Sweden", label: "Nuclear Blast", link: "https://www.metal-archives.com/bands/Meshuggah/240" },
+  { id: 3, name: "Opeth", genre: "Progressive Death Metal", rating: 9.5, status: true, theme: "Nature, Death, Mysticism", country: "Sweden", label: "Moderbolaget", link: "https://www.metal-archives.com/bands/Opeth/755" },
+  { id: 4, name: "Behemoth", genre: "Blackened Death Metal", rating: 8.7, status: true, theme: "Satanism, Anti-Christianity", country: "Poland", label: "Nuclear Blast", link: "https://www.metal-archives.com/bands/Behemoth/605" },
+  { id: 5, name: "Carcass", genre: "Melodic Death Metal", rating: 9.0, status: true, theme: "Gore, Medical Themes", country: "United Kingdom", label: "Nuclear Blast", link: "https://www.metal-archives.com/bands/Carcass/188" },
+  { id: 6, name: "Gojira", genre: "Progressive Metal, Death Metal", rating: 7.2, status: true, theme: "Environmentalism, Nature", country: "France", label: "Roadrunner Records", link: "https://www.metal-archives.com/bands/Gojira/7815" },
+  { id: 7, name: "Amon Amarth", genre: "Melodic Death Metal", rating: 8.9, status: true, theme: "Viking Mythology, Norse Mythology", country: "Sweden", label: "Metal Blade", link: "https://www.metal-archives.com/bands/Amon_Amarth/739" },
+  { id: 8, name: "Dark Tranquillity", genre: "Melodic Death Metal", rating: 9.9, status: true, theme: "Melancholy, War", country: "Sweden", label: "Century Media Records", link: "https://www.metal-archives.com/bands/Dark_Tranquillity/149" },
+  { id: 9, name: "Death", genre: "Death Metal", rating: 9.5, status: false, theme: "Philosophy, Death, Mental Struggles", country: "United States", label: "Relapse Records", link: "https://www.metal-archives.com/bands/Death/70" },
+  { id: 10, name: "Sylosis", genre: "Thrash Metal, Progressive Metal", rating: 7.6, status: true, theme: "Personal Struggles, Inner Turmoil", country: "United Kingdom", label: "Nuclear Blast", link: "https://www.metal-archives.com/bands/Sylosis/35492" },
 ];
 
 app.get("/entities", (req: express.Request, res: express.Response): void => {
-  res.json(entities);
+  let { search, sort, order, page, limit } = req.query as unknown as FetchEntitiesParams;
+
+  let filteredEntities = [...entities];
+
+  if (search) {
+    const lowerSearch = search.toLowerCase();
+    filteredEntities = filteredEntities.filter(entity =>
+      entity.name.toLowerCase().includes(lowerSearch) ||
+      entity.genre.toLowerCase().includes(lowerSearch) ||
+      entity.theme.toLowerCase().includes(lowerSearch)
+    );
+  }
+
+  if (sort && ["name", "genre", "rating", "country", "label"].includes(sort)) {
+    filteredEntities.sort((a, b) => {
+      const valueA = a[sort] as string | number;
+      const valueB = b[sort] as string | number;
+
+      if (typeof valueA === "string" && typeof valueB === "string") {
+        return order === "desc" ? valueB.localeCompare(valueA) : valueA.localeCompare(valueB);
+      }
+      return order === "desc" ? (valueB as number) - (valueA as number) : (valueA as number) - (valueB as number);
+    });
+  }
+
+  page = page ? Math.max(1, page) : 1;
+  limit = limit ? Math.max(1, limit) : 10;
+  const startIndex = (page - 1) * limit;
+  const paginatedEntities = filteredEntities.slice(startIndex, startIndex + limit);
+
+  res.json({ total: filteredEntities.length, page, limit, data: paginatedEntities });
 });
 
 app.post("/entities", (req: express.Request, res: express.Response): void => {
@@ -147,31 +84,25 @@ app.post("/entities", (req: express.Request, res: express.Response): void => {
   res.status(201).json(newEntity);
 });
 
-app.put(
-  "/entities/:id",
-  (req: express.Request<{ id: string }>, res: express.Response): void => {
-    const id = parseInt(req.params.id, 10);
-    const updatedEntity = req.body as Partial<Entity>;
+app.put("/entities/:id", (req: express.Request<{ id: string }>, res: express.Response): void => {
+  const id = parseInt(req.params.id, 10);
+  const updatedEntity = req.body as Partial<Entity>;
 
-    const index = entities.findIndex((entity) => entity.id === id);
-    if (index === -1) {
-      res.status(404).json({ message: "Entity not found" });
-      return;
-    }
-
-    entities[index] = { ...entities[index], ...updatedEntity };
-    res.json(entities[index]);
+  const index = entities.findIndex((entity) => entity.id === id);
+  if (index === -1) {
+    res.status(404).json({ message: "Entity not found" });
+    return;
   }
-);
 
-app.delete(
-  "/entities/:id",
-  (req: express.Request<{ id: string }>, res: express.Response): void => {
-    const id = parseInt(req.params.id, 10);
-    entities = entities.filter((entity) => entity.id !== id);
-    res.sendStatus(204);
-  }
-);
+  entities[index] = { ...entities[index], ...updatedEntity };
+  res.json(entities[index]);
+});
+
+app.delete("/entities/:id", (req: express.Request<{ id: string }>, res: express.Response): void => {
+  const id = parseInt(req.params.id, 10);
+  entities = entities.filter((entity) => entity.id !== id);
+  res.sendStatus(204);
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
