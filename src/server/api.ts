@@ -78,6 +78,7 @@ app.get("/entities", (req: express.Request, res: express.Response): void => {
 });
 
 app.post("/entities", (req: express.Request, res: express.Response): void => {
+  console.log("Received data:", req.body);
   const newEntity = req.body as Entity;
   newEntity.id = entities.length + 1;
   entities.push(newEntity);

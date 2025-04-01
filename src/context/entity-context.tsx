@@ -14,6 +14,14 @@ export type Entity = {
     link: string;
 };
 
+type FetchEntitiesParams = {
+    search?: string;
+    sort?: "name" | "rating" | "country";
+    order?: "asc" | "desc";
+    page?: number;
+    limit?: number;
+};
+
 export type ChartData = {
     genreDistribution: { name: string; value: number }[];
     ratingsDistribution: { rating: number; count: number }[];
@@ -29,7 +37,7 @@ type EntityContextType = {
     averageRated: Entity | null;
     lowestRated: Entity | null;
     chartData: ChartData;
-    refreshEntities: () => Promise<void>;
+    refreshEntities: (params?: FetchEntitiesParams) => Promise<void>;
 };
 
 const EntityContext = createContext<EntityContextType | undefined>(undefined);
@@ -39,6 +47,7 @@ export function EntityProvider({ children }: { children: ReactNode }) {
     const [topRated, setTopRated] = useState<Entity | null>(null);
     const [averageRated, setAverageRated] = useState<Entity | null>(null);
     const [lowestRated, setLowestRated] = useState<Entity | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
     const [chartData, setChartData] = useState<ChartData>({
         genreDistribution: [],
         ratingsDistribution: [],
@@ -47,13 +56,22 @@ export function EntityProvider({ children }: { children: ReactNode }) {
 
     const API_URL = "http://localhost:3000/entities";
 
-    const refreshEntities = async () => {
+    const refreshEntities = async (params: FetchEntitiesParams = {}) => {
         try {
-            const res = await fetch(API_URL);
+            const queryParams = new URLSearchParams();
+            if (params.search) queryParams.append("search", params.search);
+            if (params.sort) queryParams.append("sort", params.sort);
+            if (params.order) queryParams.append("order", params.order);
+            if (params.page) queryParams.append("page", params.page.toString());
+            if (params.limit) queryParams.append("limit", params.limit.toString());
+    
+            const res = await fetch(`${API_URL}?${queryParams.toString()}`);
             const data = await res.json();
-            setEntities(data);
+            setEntities(data.data);
         } catch (error) {
             console.error("Failed to fetch entities", error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
