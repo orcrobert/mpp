@@ -19,13 +19,12 @@ export type Entity = {
 };
 
 export type Props = {
-    entities: Entity[];
+    entities: Entity[]; // This prop might not be needed anymore
 };
 
-const ITEMS_PER_PAGE = 8;
-
-export default function DataGrid({ entities: initialEntities }: Props) {
+export default function DataGrid({}: Props) { // Removed entities prop
     const {
+        entities, // Now directly using entities from the context
         deleteEntity,
         topRated,
         averageRated,
@@ -33,28 +32,22 @@ export default function DataGrid({ entities: initialEntities }: Props) {
         refreshEntities,
         isNetworkDown,
         isServerDown,
+        isLoading // To show a loading indicator
     } = useEntity();
     const [selectedRows, setSelectedRows] = useState<number[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
-    const [currentPage, setCurrentPage] = useState(1);
-    const [entities, setEntities] = useState(initialEntities);
     const router = useRouter();
-
-    useEffect(() => {
-        setEntities(initialEntities);
-    }, [initialEntities]);
 
     const handleSort = (key: "name" | "rating" | "country") => {
         const newDirection = sortConfig.key === key && sortConfig.direction === "asc" ? "desc" : "asc";
         setSortConfig({ key, direction: newDirection });
-        setCurrentPage(1); // Reset page on sort
         refreshEntities({
             search: searchQuery,
             sort: key,
             order: newDirection as "asc" | "desc",
-            page: 1,
-            limit: ITEMS_PER_PAGE,
+            page: 1, // Reset page when sorting
+            limit: 10, // Or whatever your ITEMS_PER_PAGE is in the context
         });
     };
 
@@ -99,22 +92,6 @@ export default function DataGrid({ entities: initialEntities }: Props) {
         return "text-gray-100";
     };
 
-    const totalPages = Math.ceil(filteredEntities.length / ITEMS_PER_PAGE);
-
-    useEffect(() => {
-        if (currentPage > totalPages && totalPages > 0) {
-            setCurrentPage(totalPages);
-        } else if (totalPages === 0) {
-            setCurrentPage(1);
-        }
-    }, [filteredEntities, totalPages, currentPage]);
-
-    const paginatedEntities = useMemo(() => {
-        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-        const endIndex = startIndex + ITEMS_PER_PAGE;
-        return filteredEntities.slice(startIndex, endIndex);
-    }, [filteredEntities, currentPage]);
-
     return (
         <div>
             <SearchBox onSearch={setSearchQuery} />
@@ -158,7 +135,7 @@ export default function DataGrid({ entities: initialEntities }: Props) {
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                    {paginatedEntities.map((entity) => (
+                    {filteredEntities.map((entity) => (
                         <Table.Row key={entity.id}>
                             <Table.Cell paddingLeft={2}>
                                 <Checkbox.Root
@@ -231,29 +208,6 @@ export default function DataGrid({ entities: initialEntities }: Props) {
                 >
                     Delete Selected
                 </Button>
-                <div className="flex justify-center gap-4 mt-4">
-                    <Button
-                        size="xs"
-                        rounded="xl"
-                        p={2}
-                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                        disabled={currentPage === 1}
-                    >
-                        Prev
-                    </Button>
-                    <span>
-                        Page {currentPage} of {totalPages}
-                    </span>
-                    <Button
-                        size="xs"
-                        rounded="xl"
-                        p={2}
-                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                        disabled={currentPage === totalPages}
-                    >
-                        Next
-                    </Button>
-                </div>
                 <Button
                     borderRadius={8}
                     colorPalette="blue"
@@ -265,6 +219,7 @@ export default function DataGrid({ entities: initialEntities }: Props) {
                     Update Selected
                 </Button>
             </div>
+            {isLoading && <div>Loading more entities...</div>}
         </div>
     );
 }
