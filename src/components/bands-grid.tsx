@@ -128,13 +128,13 @@ export default function DataGrid({ entities: initialEntities }: Props) {
                     mb={4}
                 >
                     {isNetworkDown && !isServerDown && (
-                        <Text>⚠️ Network connection is down. Changes will be saved locally.</Text>
+                        <Text fontFamily='sans-serif' color="black" fontWeight="black" fontSize={13}>⚠️ Network connection is down. Changes will be saved locally.</Text>
                     )}
                     {!isNetworkDown && isServerDown && (
-                        <Text>⚠️ Server is unreachable. Changes will be saved locally.</Text>
+                        <Text fontFamily='sans-serif' color="black" fontWeight="black" fontSize={13}>⚠️ Server is unreachable. Changes will be saved locally.</Text>
                     )}
                     {isNetworkDown && isServerDown && (
-                        <Text>⚠️ Network and server are down. Changes will be saved locally.</Text>
+                        <Text fontFamily='sans-serif' color="black" fontWeight="black" fontSize={13}>⚠️ Network and server are down. Changes will be saved locally.</Text>
                     )}
                 </Box>
             )}
