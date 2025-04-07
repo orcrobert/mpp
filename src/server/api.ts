@@ -1,7 +1,17 @@
 import express from "express";
 import cors from "cors";
+import { Server as SocketIOServer } from "socket.io";
+import http from "http";
 
 const app = express();
+const server = http.createServer(app);
+const io = new SocketIOServer(server, {
+  cors: {
+    origin: 'http://localhost:3001',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  }
+});
+
 app.use(express.json());
 app.use(cors({
   origin: 'http://localhost:3001',
@@ -63,6 +73,50 @@ let entities: Entity[] = [
   { id: 30, name: "Sylosis III", genre: "Thrash Metal, Progressive Metal", rating: 7.7, status: true, theme: "Dystopia", country: "United Kingdom", label: "Nuclear Blast", link: "https://www.metal-archives.com/bands/Sylosis/35492" },
 ];
 
+const generateNewEntity = (): Entity => {
+  const newId = entities.length + 1;
+  return {
+    id: newId,
+    name: `Generated Band ${newId}`,
+    genre: ["Technical Death Metal", "Progressive Metal", "Melodic Death Metal", "Thrash Metal"][Math.floor(Math.random() * 4)],
+    rating: parseFloat((Math.random() * 5 + 5).toFixed(1)),
+    status: Math.random() < 0.8,
+    theme: ["Philosophy", "Mathematics", "Nature", "Satanism"][Math.floor(Math.random() * 4)],
+    country: ["Italy", "Sweden", "Poland", "United Kingdom"][Math.floor(Math.random() * 4)],
+    label: ["Nuclear Blast", "Metal Blade", "Century Media Records", "Relapse Records"][Math.floor(Math.random() * 4)],
+    link: "#",
+  };
+};
+
+io.on('connection', (socket) => {
+  console.log('Client connected:', socket.id);
+  socket.emit('initial_entities', entities);
+
+  let generationCount = 0;
+  const maxGenerations = Math.floor(Math.random() * 11) + 10;
+
+  const entityGenerationInterval = setInterval(() => {
+    if (generationCount < maxGenerations) {
+      const newEntity = generateNewEntity();
+      entities.push(newEntity);
+      io.emit('new_entity', newEntity);
+      generationCount++;
+    } else {
+      clearInterval(entityGenerationInterval);
+      console.log('Automatic entity generation stopped for this client.');
+    }
+  }, 5000);
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected:', socket.id);
+    clearInterval(entityGenerationInterval);
+  });
+});
+
+app.get("/entities/health", (req, res) => {
+  res.sendStatus(200);
+});
+
 app.get("/entities/health", (req, res) => {
   res.sendStatus(200);
 });
@@ -102,10 +156,10 @@ app.get("/entities", (req: express.Request, res: express.Response): void => {
 });
 
 app.post("/entities", (req: express.Request, res: express.Response): void => {
-  console.log("Received data:", req.body);
   const newEntity = req.body as Entity;
   newEntity.id = entities.length + 1;
   entities.push(newEntity);
+  io.emit('new_entity', newEntity);
   res.status(201).json(newEntity);
 });
 
@@ -120,15 +174,17 @@ app.put("/entities/:id", (req: express.Request<{ id: string }>, res: express.Res
   }
 
   entities[index] = { ...entities[index], ...updatedEntity };
+  io.emit('updated_entity', { id, updatedEntity });
   res.json(entities[index]);
 });
 
 app.delete("/entities/:id", (req: express.Request<{ id: string }>, res: express.Response): void => {
   const id = parseInt(req.params.id, 10);
   entities = entities.filter((entity) => entity.id !== id);
+  io.emit('deleted_entity', id);
   res.sendStatus(204);
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

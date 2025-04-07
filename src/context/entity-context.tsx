@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from "react";
+import { io, Socket } from 'socket.io-client';
 
 export type Entity = {
     id: number;
@@ -88,6 +89,48 @@ export function EntityProvider({ children }: { children: ReactNode }) {
     const [hasMore, setHasMore] = useState(true);
 
     const API_URL = "http://localhost:3000/entities";
+    const WS_URL = "http://localhost:3000";
+
+    useEffect(() => {
+        const socket: Socket = io(WS_URL);
+
+        socket.on('connect', () => {
+            console.log("Socket.IO connected:", socket.id);
+        });
+
+        socket.on('initial_entities', (data: Entity[]) => {
+            setEntities(data);
+            setInitialLoad(false);
+        });
+
+        socket.on('new_entity', (data: Entity) => {
+            setEntities((prevEntities) => [...prevEntities, data]);
+        });
+
+        socket.on('updated_entity', (data: { id: number; updatedEntity: Partial<Entity> }) => {
+            setEntities((prevEntities) =>
+                prevEntities.map((entity) =>
+                    entity.id === data.id ? { ...entity, ...data.updatedEntity } : entity
+                )
+            );
+        });
+
+        socket.on('deleted_entity', (id: number) => {
+            setEntities((prevEntities) => prevEntities.filter((entity) => entity.id !== id));
+        });
+
+        socket.on('disconnect', () => {
+            console.log("Socket.IO disconnected");
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error("Socket.IO connection error:", error);
+        });
+
+        return () => {
+            socket.disconnect();
+        };
+    }, [WS_URL]);
 
     const checkServerStatus = useCallback(async () => {
         try {
@@ -191,43 +234,41 @@ export function EntityProvider({ children }: { children: ReactNode }) {
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify(operation.payload),
                         });
+                        if (response?.ok) {
+                            setPendingOperations((prev) => prev.filter((op) => op !== operation));
+                        }
                     } else if (operation.type === "delete") {
                         response = await fetch(`${API_URL}/${operation.payload}`, { method: "DELETE" });
-                    } else if (operation.type === "update") {
-                        response = await fetch(`${API_URL}/${operation.payload.id}`, {
-                            method: "PUT",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(operation.payload.data),
-                        });
-                    }
-
-                    if (response?.ok) {
-                        setPendingOperations((prev) => prev.filter((op) => op !== operation));
-                        if (operation.type === "delete") {
+                        if (response?.ok) {
+                            setPendingOperations((prev) => prev.filter((op) => op !== operation));
                             setEntities((prevEntities) =>
                                 prevEntities.filter((entity) => entity.id !== operation.payload)
                             );
                             if (typeof window !== 'undefined') {
                                 localStorage.setItem(LOCAL_STORAGE_CACHE_KEY, JSON.stringify(entities));
                             }
-                        } else if (operation.type === "add" || operation.type === "update") {
-                            setPage(1);
-                            setHasMore(true);
-                            await refreshEntities();
-                            return;
                         }
-                    } else {
+                    } else if (operation.type === "update") {
+                        response = await fetch(`${API_URL}/${operation.payload.id}`, {
+                            method: "PUT",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(operation.payload.data),
+                        });
+                        if (response?.ok) {
+                            setPendingOperations((prev) => prev.filter((op) => op !== operation));
+                        }
+                    }
+
+                    if (!response?.ok) {
                         console.error("Failed to sync operation:", operation, await response?.text());
                     }
                 } catch (error) {
                     console.error("Error syncing operation:", operation, error);
                 }
             }
-            if (pendingOperations.filter(op => op.type === 'add' || op.type === 'update').length === 0) {
-                setPage(1);
-                setHasMore(true);
-                refreshEntities();
-            }
+            setPage(1);
+            setHasMore(true);
+            refreshEntities();
         }
     }, [isNetworkDown, isServerDown, pendingOperations, API_URL, refreshEntities, entities]);
 
@@ -316,10 +357,6 @@ export function EntityProvider({ children }: { children: ReactNode }) {
 
     const addEntity = async (entity: Omit<Entity, "id">) => {
         if (isNetworkDown || isServerDown) {
-            setEntities((prevEntities) => [...prevEntities, { ...entity, id: Date.now() }]);
-            if (typeof window !== 'undefined') {
-                localStorage.setItem(LOCAL_STORAGE_CACHE_KEY, JSON.stringify(entities));
-            }
             setPendingOperations((prev) => [...prev, { type: "add", payload: entity }]);
             return;
         }
@@ -332,7 +369,6 @@ export function EntityProvider({ children }: { children: ReactNode }) {
             if (res.ok) {
                 setPage(1);
                 setHasMore(true);
-                await refreshEntities();
             } else {
                 console.error(await res.text());
             }
@@ -343,10 +379,6 @@ export function EntityProvider({ children }: { children: ReactNode }) {
 
     const deleteEntity = async (id: number) => {
         if (isNetworkDown || isServerDown) {
-            setEntities((prevEntities) => prevEntities.filter((entity) => entity.id !== id));
-            if (typeof window !== 'undefined') {
-                localStorage.setItem(LOCAL_STORAGE_CACHE_KEY, JSON.stringify(entities));
-            }
             setPendingOperations((prev) => [...prev, { type: "delete", payload: id }]);
             return;
         }
@@ -367,14 +399,6 @@ export function EntityProvider({ children }: { children: ReactNode }) {
 
     const updateEntity = async (id: number, updatedEntity: Partial<Entity>) => {
         if (isNetworkDown || isServerDown) {
-            setEntities((prevEntities) =>
-                prevEntities.map((entity) =>
-                    entity.id === id ? { ...entity, ...updatedEntity } : entity
-                )
-            );
-            if (typeof window !== 'undefined') {
-                localStorage.setItem(LOCAL_STORAGE_CACHE_KEY, JSON.stringify(entities));
-            }
             setPendingOperations((prev) => [...prev, { type: "update", payload: { id, data: updatedEntity } }]);
             return;
         }
@@ -385,7 +409,6 @@ export function EntityProvider({ children }: { children: ReactNode }) {
                 body: JSON.stringify(updatedEntity),
             });
             if (res.ok) {
-                await refreshEntities();
             } else {
                 console.error(await res.text());
             }
@@ -405,7 +428,7 @@ export function EntityProvider({ children }: { children: ReactNode }) {
                 averageRated,
                 lowestRated,
                 chartData,
-                refreshEntities: (params) => refreshEntities(params, 1, ITEMS_PER_PAGE),
+                refreshEntities: (params) => refreshEntities(params),
                 isNetworkDown,
                 isServerDown,
                 isLoading,
