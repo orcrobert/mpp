@@ -43,6 +43,10 @@ let entities: Entity[] = [
   { id: 10, name: "Sylosis", genre: "Thrash Metal, Progressive Metal", rating: 7.6, status: true, theme: "Personal Struggles, Inner Turmoil", country: "United Kingdom", label: "Nuclear Blast", link: "https://www.metal-archives.com/bands/Sylosis/35492" },
 ];
 
+app.get("/entities/health", (req, res) => {
+  res.sendStatus(200);
+});
+
 app.get("/entities", (req: express.Request, res: express.Response): void => {
   let { search, sort, order, page, limit } = req.query as unknown as FetchEntitiesParams;
 
