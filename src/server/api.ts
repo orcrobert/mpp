@@ -2,6 +2,13 @@ import express from "express";
 import cors from "cors";
 import { Server as SocketIOServer } from "socket.io";
 import http from "http";
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const server = http.createServer(app);
@@ -113,8 +120,42 @@ io.on('connection', (socket) => {
   });
 });
 
-app.get("/entities/health", (req, res) => {
-  res.sendStatus(200);
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({ storage: storage });
+
+const uploadDir = 'uploads';
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+
+app.post('/upload', upload.single('file'), (req, res) => {
+  if (req.file) {
+    res.json({ message: 'File uploaded successfully', filename: req.file.filename });
+  } else {
+    res.status(400).json({ message: 'No file uploaded' });
+  }
+});
+
+app.get('/download/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const filePath = path.join(__dirname, 'uploads', filename);
+
+  fs.access(filePath, fs.constants.R_OK, (err) => {
+    if (err) {
+      return res.status(404).send('File not found');
+    }
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.sendFile(filePath);
+  });
 });
 
 app.get("/entities/health", (req, res) => {

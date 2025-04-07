@@ -10,6 +10,7 @@ const Navbar = () => {
                 <li><Link href="#table-view-section" fontSize="sm" fontWeight="bold">View</Link></li>
                 <li><Link href="/add-band" fontSize="sm" fontWeight="bold">Add band</Link></li>
                 <li><Link href="chart-page" fontSize="sm" fontWeight="bold">Charts Page</Link></li>
+                <li><Link href="file-page" fontSize="sm" fontWeight="bold">File Page</Link></li>
             </ul>
         </header>
     )
