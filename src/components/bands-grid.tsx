@@ -1,4 +1,5 @@
-import { Table, Button, Box, Checkbox } from "@chakra-ui/react";
+// bands-grid.tsx
+import { Table, Button, Box, Checkbox, Text } from "@chakra-ui/react";
 import { useState, useEffect, useMemo } from "react";
 import { useEntity } from "@/context/entity-context";
 import { useRouter } from "next/navigation";
@@ -23,29 +24,37 @@ export type Props = {
 
 const ITEMS_PER_PAGE = 8;
 
-export default function DataGrid({ entities }: Props) {
-    const { deleteEntity, topRated, averageRated, lowestRated, refreshEntities } = useEntity();
+export default function DataGrid({ entities: initialEntities }: Props) {
+    const {
+        deleteEntity,
+        topRated,
+        averageRated,
+        lowestRated,
+        refreshEntities,
+        isNetworkDown,
+        isServerDown,
+    } = useEntity();
     const [selectedRows, setSelectedRows] = useState<number[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
-    const [sortedEntities, setSortedEntities] = useState<Entity[]>(entities);
     const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
     const [currentPage, setCurrentPage] = useState(1);
+    const [entities, setEntities] = useState(initialEntities);
     const router = useRouter();
 
     useEffect(() => {
-        setSortedEntities(entities);
-    }, [entities]);
+        setEntities(initialEntities);
+    }, [initialEntities]);
 
     const handleSort = (key: "name" | "rating" | "country") => {
         const newDirection = sortConfig.key === key && sortConfig.direction === "asc" ? "desc" : "asc";
         setSortConfig({ key, direction: newDirection });
-
+        setCurrentPage(1); // Reset page on sort
         refreshEntities({
             search: searchQuery,
             sort: key,
             order: newDirection as "asc" | "desc",
             page: 1,
-            limit: ITEMS_PER_PAGE
+            limit: ITEMS_PER_PAGE,
         });
     };
 
@@ -76,12 +85,12 @@ export default function DataGrid({ entities }: Props) {
 
     const filteredEntities = useMemo(() => {
         const searchQueryLower = searchQuery.toLowerCase();
-        return sortedEntities.filter((entity) =>
+        return entities.filter((entity) =>
             Object.values(entity).some((value) =>
                 value.toString().toLowerCase().includes(searchQueryLower)
             )
         );
-    }, [sortedEntities, searchQuery]);
+    }, [entities, searchQuery]);
 
     const getRatingClass = (entity: Entity) => {
         if (topRated?.id === entity.id) return "text-green-400";
@@ -93,19 +102,43 @@ export default function DataGrid({ entities }: Props) {
     const totalPages = Math.ceil(filteredEntities.length / ITEMS_PER_PAGE);
 
     useEffect(() => {
-        if (currentPage > totalPages) {
-            setCurrentPage(totalPages === 0 ? 1 : totalPages);
+        if (currentPage > totalPages && totalPages > 0) {
+            setCurrentPage(totalPages);
+        } else if (totalPages === 0) {
+            setCurrentPage(1);
         }
     }, [filteredEntities, totalPages, currentPage]);
 
-    const paginatedEntities = filteredEntities.slice(
-        (currentPage - 1) * ITEMS_PER_PAGE,
-        currentPage * ITEMS_PER_PAGE
-    );
+    const paginatedEntities = useMemo(() => {
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIndex = startIndex + ITEMS_PER_PAGE;
+        return filteredEntities.slice(startIndex, endIndex);
+    }, [filteredEntities, currentPage]);
 
     return (
         <div>
             <SearchBox onSearch={setSearchQuery} />
+
+            {(isNetworkDown || isServerDown) && (
+                <Box
+                    bg={isNetworkDown ? "yellow.400" : "orange.400"}
+                    color="white"
+                    p={2}
+                    textAlign="center"
+                    mb={4}
+                >
+                    {isNetworkDown && !isServerDown && (
+                        <Text>⚠️ Network connection is down. Changes will be saved locally.</Text>
+                    )}
+                    {!isNetworkDown && isServerDown && (
+                        <Text>⚠️ Server is unreachable. Changes will be saved locally.</Text>
+                    )}
+                    {isNetworkDown && isServerDown && (
+                        <Text>⚠️ Network and server are down. Changes will be saved locally.</Text>
+                    )}
+                </Box>
+            )}
+
             <Table.Root size="sm" striped marginBottom="5" marginTop="5">
                 <Table.Header>
                     <Table.Row>
