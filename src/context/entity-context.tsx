@@ -1,4 +1,3 @@
-// entity-context.tsx
 "use client";
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from "react";
@@ -55,8 +54,11 @@ type PendingOperation =
 
 export function EntityProvider({ children }: { children: ReactNode }) {
     const [entities, setEntities] = useState<Entity[]>(() => {
-        const cached = localStorage.getItem(LOCAL_STORAGE_CACHE_KEY);
-        return cached ? JSON.parse(cached) : [];
+        if (typeof window !== 'undefined') {
+            const cached = localStorage.getItem(LOCAL_STORAGE_CACHE_KEY);
+            return cached ? JSON.parse(cached) : [];
+        }
+        return [];
     });
     const [topRated, setTopRated] = useState<Entity | null>(null);
     const [averageRated, setAverageRated] = useState<Entity | null>(null);
@@ -71,8 +73,11 @@ export function EntityProvider({ children }: { children: ReactNode }) {
     const [isServerDown, setIsServerDown] = useState(false);
     const [pendingOperations, setPendingOperations] = useState<PendingOperation[]>(
         () => {
-            const storedOperations = localStorage.getItem(LOCAL_STORAGE_KEY);
-            return storedOperations ? JSON.parse(storedOperations) : [];
+            if (typeof window !== 'undefined') {
+                const storedOperations = localStorage.getItem(LOCAL_STORAGE_KEY);
+                return storedOperations ? JSON.parse(storedOperations) : [];
+            }
+            return [];
         }
     );
 
@@ -114,24 +119,31 @@ export function EntityProvider({ children }: { children: ReactNode }) {
             const res = await fetch(`${API_URL}?${queryParams.toString()}`);
             if (!res.ok) {
                 console.error("Failed to fetch entities from server");
-                // Attempt to load from cache
-                const cached = localStorage.getItem(LOCAL_STORAGE_CACHE_KEY);
-                if (cached) {
-                    setEntities(JSON.parse(cached));
+                if (typeof window !== 'undefined') {
+                    const cached = localStorage.getItem(LOCAL_STORAGE_CACHE_KEY);
+                    if (cached) {
+                        setEntities(JSON.parse(cached));
+                    }
                 }
+                setIsServerDown(true);
             } else {
                 const data = await res.json();
                 setEntities(data.data);
                 // Cache the fetched data
-                localStorage.setItem(LOCAL_STORAGE_CACHE_KEY, JSON.stringify(data.data));
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem(LOCAL_STORAGE_CACHE_KEY, JSON.stringify(data.data));
+                }
+                setIsServerDown(false);
             }
         } catch (error) {
             console.error("Failed to fetch entities", error);
-            // Attempt to load from cache on error as well
-            const cached = localStorage.getItem(LOCAL_STORAGE_CACHE_KEY);
-            if (cached) {
-                setEntities(JSON.parse(cached));
+            if (typeof window !== 'undefined') {
+                const cached = localStorage.getItem(LOCAL_STORAGE_CACHE_KEY);
+                if (cached) {
+                    setEntities(JSON.parse(cached));
+                }
             }
+            setIsServerDown(true);
         } finally {
             setIsLoading(false);
         }
@@ -139,12 +151,14 @@ export function EntityProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         checkServerStatus();
-        const intervalId = setInterval(checkServerStatus, 5000); // Check server status every 5 seconds
+        const intervalId = setInterval(checkServerStatus, 5000);
         return () => clearInterval(intervalId);
     }, [checkServerStatus]);
 
     useEffect(() => {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(pendingOperations));
+        if (typeof window !== 'undefined') {
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(pendingOperations));
+        }
     }, [pendingOperations]);
 
     const syncPendingOperations = useCallback(async () => {
@@ -170,18 +184,29 @@ export function EntityProvider({ children }: { children: ReactNode }) {
 
                     if (response?.ok) {
                         setPendingOperations((prev) => prev.filter((op) => op !== operation));
+                        if (operation.type === "delete") {
+                            setEntities((prevEntities) =>
+                                prevEntities.filter((entity) => entity.id !== operation.payload)
+                            );
+                            if (typeof window !== 'undefined') {
+                                localStorage.setItem(LOCAL_STORAGE_CACHE_KEY, JSON.stringify(entities));
+                            }
+                        } else if (operation.type === "add" || operation.type === "update") {
+                            await refreshEntities();
+                            return;
+                        }
                     } else {
                         console.error("Failed to sync operation:", operation, await response?.text());
-                        // Optionally, you could implement a retry mechanism here
                     }
                 } catch (error) {
                     console.error("Error syncing operation:", operation, error);
                 }
             }
-            // After attempting to sync all, refresh entities to get the latest data
-            refreshEntities();
+            if (pendingOperations.filter(op => op.type === 'add' || op.type === 'update').length === 0) {
+                refreshEntities();
+            }
         }
-    }, [isNetworkDown, isServerDown, pendingOperations, API_URL, refreshEntities]);
+    }, [isNetworkDown, isServerDown, pendingOperations, API_URL, refreshEntities, entities]);
 
     useEffect(() => {
         syncPendingOperations();
@@ -243,6 +268,10 @@ export function EntityProvider({ children }: { children: ReactNode }) {
 
     const addEntity = async (entity: Omit<Entity, "id">) => {
         if (isNetworkDown || isServerDown) {
+            setEntities((prevEntities) => [...prevEntities, { ...entity, id: Date.now() }]); // Optimistic update with a temporary ID
+            if (typeof window !== 'undefined') {
+                localStorage.setItem(LOCAL_STORAGE_CACHE_KEY, JSON.stringify(entities));
+            }
             setPendingOperations((prev) => [...prev, { type: "add", payload: entity }]);
             return;
         }
@@ -264,6 +293,10 @@ export function EntityProvider({ children }: { children: ReactNode }) {
 
     const deleteEntity = async (id: number) => {
         if (isNetworkDown || isServerDown) {
+            setEntities((prevEntities) => prevEntities.filter((entity) => entity.id !== id));
+            if (typeof window !== 'undefined') {
+                localStorage.setItem(LOCAL_STORAGE_CACHE_KEY, JSON.stringify(entities));
+            }
             setPendingOperations((prev) => [...prev, { type: "delete", payload: id }]);
             return;
         }
@@ -281,6 +314,14 @@ export function EntityProvider({ children }: { children: ReactNode }) {
 
     const updateEntity = async (id: number, updatedEntity: Partial<Entity>) => {
         if (isNetworkDown || isServerDown) {
+            setEntities((prevEntities) =>
+                prevEntities.map((entity) =>
+                    entity.id === id ? { ...entity, ...updatedEntity } : entity
+                )
+            );
+            if (typeof window !== 'undefined') {
+                localStorage.setItem(LOCAL_STORAGE_CACHE_KEY, JSON.stringify(entities));
+            }
             setPendingOperations((prev) => [...prev, { type: "update", payload: { id, data: updatedEntity } }]);
             return;
         }
