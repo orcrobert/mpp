@@ -1,4 +1,3 @@
-// bands-grid.tsx
 import { Table, Button, Box, Checkbox, Text } from "@chakra-ui/react";
 import { useState, useEffect, useMemo } from "react";
 import { useEntity } from "@/context/entity-context";
@@ -19,12 +18,12 @@ export type Entity = {
 };
 
 export type Props = {
-    entities: Entity[]; // This prop might not be needed anymore
+    entities: Entity[];
 };
 
-export default function DataGrid({}: Props) { // Removed entities prop
+export default function DataGrid({}: Props) {
     const {
-        entities, // Now directly using entities from the context
+        entities,
         deleteEntity,
         topRated,
         averageRated,
@@ -32,7 +31,7 @@ export default function DataGrid({}: Props) { // Removed entities prop
         refreshEntities,
         isNetworkDown,
         isServerDown,
-        isLoading // To show a loading indicator
+        isLoading
     } = useEntity();
     const [selectedRows, setSelectedRows] = useState<number[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
@@ -46,8 +45,8 @@ export default function DataGrid({}: Props) { // Removed entities prop
             search: searchQuery,
             sort: key,
             order: newDirection as "asc" | "desc",
-            page: 1, // Reset page when sorting
-            limit: 10, // Or whatever your ITEMS_PER_PAGE is in the context
+            page: 1,
+            limit: 10,
         });
     };
 
