@@ -40,6 +40,7 @@ type EntityContextType = {
     refreshEntities: (params?: FetchEntitiesParams) => Promise<void>;
     isNetworkDown: boolean;
     isServerDown: boolean;
+    isLoading: boolean;
 };
 
 const EntityContext = createContext<EntityContextType | undefined>(undefined);
@@ -52,6 +53,8 @@ type PendingOperation =
     | { type: "delete"; payload: number }
     | { type: "update"; payload: { id: number; data: Partial<Entity> } };
 
+const ITEMS_PER_PAGE = 10;
+
 export function EntityProvider({ children }: { children: ReactNode }) {
     const [entities, setEntities] = useState<Entity[]>(() => {
         if (typeof window !== 'undefined') {
@@ -63,7 +66,8 @@ export function EntityProvider({ children }: { children: ReactNode }) {
     const [topRated, setTopRated] = useState<Entity | null>(null);
     const [averageRated, setAverageRated] = useState<Entity | null>(null);
     const [lowestRated, setLowestRated] = useState<Entity | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
+    const [initialLoad, setInitialLoad] = useState(true);
     const [chartData, setChartData] = useState<ChartData>({
         genreDistribution: [],
         ratingsDistribution: [],
@@ -80,6 +84,8 @@ export function EntityProvider({ children }: { children: ReactNode }) {
             return [];
         }
     );
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
 
     const API_URL = "http://localhost:3000/entities";
 
@@ -106,48 +112,61 @@ export function EntityProvider({ children }: { children: ReactNode }) {
     }, []);
 
 
-    const refreshEntities = async (params: FetchEntitiesParams = {}) => {
+    const refreshEntities = useCallback(async (params: FetchEntitiesParams = {}, currentPage: number = 1, itemsPerPage: number = ITEMS_PER_PAGE, shouldConcat: boolean = false) => {
+        if (!hasMore && currentPage > 1) return;
+
         setIsLoading(true);
         try {
             const queryParams = new URLSearchParams();
             if (params.search) queryParams.append("search", params.search);
             if (params.sort) queryParams.append("sort", params.sort);
             if (params.order) queryParams.append("order", params.order);
-            if (params.page) queryParams.append("page", params.page.toString());
-            if (params.limit) queryParams.append("limit", params.limit.toString());
+            queryParams.append("page", currentPage.toString());
+            queryParams.append("limit", itemsPerPage.toString());
 
             const res = await fetch(`${API_URL}?${queryParams.toString()}`);
             if (!res.ok) {
                 console.error("Failed to fetch entities from server");
-                if (typeof window !== 'undefined') {
+                if (typeof window !== 'undefined' && currentPage === 1) {
                     const cached = localStorage.getItem(LOCAL_STORAGE_CACHE_KEY);
                     if (cached) {
                         setEntities(JSON.parse(cached));
                     }
                 }
                 setIsServerDown(true);
+                setHasMore(false);
             } else {
                 const data = await res.json();
-                setEntities(data.data);
-                // Cache the fetched data
-                if (typeof window !== 'undefined') {
-                    localStorage.setItem(LOCAL_STORAGE_CACHE_KEY, JSON.stringify(data.data));
+                if (data && Array.isArray(data.data)) {
+                    if (shouldConcat) {
+                        setEntities((prevEntities) => [...prevEntities, ...data.data]);
+                    } else {
+                        setEntities(data.data);
+                        if (typeof window !== 'undefined') {
+                            localStorage.setItem(LOCAL_STORAGE_CACHE_KEY, JSON.stringify(data.data));
+                        }
+                    }
+                    setHasMore(data.data.length === itemsPerPage);
+                } else {
+                    setHasMore(false);
                 }
                 setIsServerDown(false);
             }
         } catch (error) {
             console.error("Failed to fetch entities", error);
-            if (typeof window !== 'undefined') {
+            if (typeof window !== 'undefined' && currentPage === 1) {
                 const cached = localStorage.getItem(LOCAL_STORAGE_CACHE_KEY);
                 if (cached) {
                     setEntities(JSON.parse(cached));
                 }
             }
             setIsServerDown(true);
+            setHasMore(false);
         } finally {
             setIsLoading(false);
+            setInitialLoad(false);
         }
-    };
+    }, [API_URL, hasMore]);
 
     useEffect(() => {
         checkServerStatus();
@@ -192,6 +211,8 @@ export function EntityProvider({ children }: { children: ReactNode }) {
                                 localStorage.setItem(LOCAL_STORAGE_CACHE_KEY, JSON.stringify(entities));
                             }
                         } else if (operation.type === "add" || operation.type === "update") {
+                            setPage(1);
+                            setHasMore(true);
                             await refreshEntities();
                             return;
                         }
@@ -203,6 +224,8 @@ export function EntityProvider({ children }: { children: ReactNode }) {
                 }
             }
             if (pendingOperations.filter(op => op.type === 'add' || op.type === 'update').length === 0) {
+                setPage(1);
+                setHasMore(true);
                 refreshEntities();
             }
         }
@@ -213,8 +236,33 @@ export function EntityProvider({ children }: { children: ReactNode }) {
     }, [syncPendingOperations]);
 
     useEffect(() => {
-        refreshEntities();
-    }, []);
+        if (initialLoad) {
+            refreshEntities({}, 1, ITEMS_PER_PAGE);
+        }
+    }, [refreshEntities, initialLoad]);
+
+    const handleScroll = useCallback(() => {
+        if (!isLoading && hasMore && !isServerDown && !isNetworkDown) {
+            const scrollHeight = document.documentElement.scrollHeight;
+            const scrollTop = document.documentElement.scrollTop;
+            const clientHeight = document.documentElement.clientHeight;
+
+            if (scrollTop + clientHeight >= scrollHeight - 20) {
+                setPage((prevPage) => prevPage + 1);
+            }
+        }
+    }, [isLoading, hasMore, isServerDown, isNetworkDown]);
+
+    useEffect(() => {
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, [handleScroll]);
+
+    useEffect(() => {
+        if (page > 1 && hasMore && !initialLoad) {
+            refreshEntities({}, page, ITEMS_PER_PAGE, true);
+        }
+    }, [page, hasMore, refreshEntities, initialLoad]);
 
     const calculateRatings = () => {
         if (entities.length === 0) {
@@ -268,7 +316,7 @@ export function EntityProvider({ children }: { children: ReactNode }) {
 
     const addEntity = async (entity: Omit<Entity, "id">) => {
         if (isNetworkDown || isServerDown) {
-            setEntities((prevEntities) => [...prevEntities, { ...entity, id: Date.now() }]); // Optimistic update with a temporary ID
+            setEntities((prevEntities) => [...prevEntities, { ...entity, id: Date.now() }]);
             if (typeof window !== 'undefined') {
                 localStorage.setItem(LOCAL_STORAGE_CACHE_KEY, JSON.stringify(entities));
             }
@@ -282,6 +330,8 @@ export function EntityProvider({ children }: { children: ReactNode }) {
                 body: JSON.stringify(entity),
             });
             if (res.ok) {
+                setPage(1);
+                setHasMore(true);
                 await refreshEntities();
             } else {
                 console.error(await res.text());
@@ -303,7 +353,10 @@ export function EntityProvider({ children }: { children: ReactNode }) {
         try {
             const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
             if (res.ok) {
-                await refreshEntities();
+                setEntities((prevEntities) => prevEntities.filter((entity) => entity.id !== id));
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem(LOCAL_STORAGE_CACHE_KEY, JSON.stringify(entities));
+                }
             } else {
                 console.error(await res.text());
             }
@@ -352,9 +405,10 @@ export function EntityProvider({ children }: { children: ReactNode }) {
                 averageRated,
                 lowestRated,
                 chartData,
-                refreshEntities,
+                refreshEntities: (params) => refreshEntities(params, 1, ITEMS_PER_PAGE),
                 isNetworkDown,
                 isServerDown,
+                isLoading,
             }}
         >
             {children}
