@@ -379,6 +379,7 @@ export function EntityProvider({ children }: { children: ReactNode }) {
 
     const deleteEntity = async (id: number) => {
         if (isNetworkDown || isServerDown) {
+            setEntities((prevEntities) => prevEntities.filter((entity) => entity.id !== id));
             setPendingOperations((prev) => [...prev, { type: "delete", payload: id }]);
             return;
         }
