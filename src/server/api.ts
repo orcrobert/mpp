@@ -100,7 +100,7 @@ io.on('connection', (socket) => {
   socket.emit('initial_entities', entities);
 
   let generationCount = 0;
-  const maxGenerations = Math.floor(Math.random() * 11) + 10;
+  const maxGenerations = 15;
 
   const entityGenerationInterval = setInterval(() => {
     if (generationCount < maxGenerations) {
