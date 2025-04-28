@@ -1,41 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Metal DB
 
-## Getting Started
+A database application for managing metal bands and their albums.
 
-First, run the development server:
+## Prerequisites
 
+- Node.js (v23.10.0 or higher)
+- PostgreSQL
+- npm
+
+## Setup
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd metal-db
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Set up your environment variables by creating a `.env` file in the root directory:
+```env
+DATABASE_URL="postgresql://username:password@localhost:5432/metal_db"
+```
+
+4. Set up the database:
+```bash
+# Create and apply migrations
+npx prisma migrate dev
+
+# Generate Prisma Client
+npx prisma generate
+
+# Seed the database with initial data
+npm run seed
+```
+
+## Running the Application
+
+1. Start the backend server (default port: 3000):
+```bash
+npx ts-node --esm src/server/api.ts
+```
+
+2. Start the frontend development server (default port: 3001):
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Also run the api server:
-```bash
-npx ts-node api.ts
-```
+## API Endpoints
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Bands
+- `GET /entities` - Get all bands (with pagination, sorting, and filtering)
+- `POST /entities` - Create a new band
+- `PUT /entities/:id` - Update a band
+- `DELETE /entities/:id` - Delete a band and its albums
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Albums
+- `GET /bands/:bandId/albums` - Get all albums for a band
+- `POST /bands/:bandId/albums` - Create a new album for a band
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Database Schema
 
-## Learn More
+### Band
+- id (Int, auto-increment)
+- name (String)
+- genre (String)
+- rating (Float)
+- status (Boolean)
+- theme (String)
+- country (String)
+- label (String)
+- link (String)
+- createdAt (DateTime)
+- updatedAt (DateTime)
 
-To learn more about Next.js, take a look at the following resources:
+### Album
+- id (Int, auto-increment)
+- name (String)
+- releaseYear (Int)
+- rating (Float)
+- bandId (Int, foreign key)
+- createdAt (DateTime)
+- updatedAt (DateTime)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Development Notes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- The application uses ESM modules
+- TypeScript is configured for Node.js ESM support
+- Prisma is used for database operations
+- Socket.IO is implemented for real-time updates
