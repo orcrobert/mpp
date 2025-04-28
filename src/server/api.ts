@@ -6,6 +6,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import prisma from './db.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,65 +48,42 @@ type Entity = {
   link: string;
 };
 
-let entities: Entity[] = [
-  { id: 1, name: "Fleshgod Apocalypse", genre: "Technical Death Metal", rating: 9.8, status: true, theme: "Philosophy", country: "Italy", label: "Nuclear Blast", link: "https://www.metal-archives.com/bands/Fleshgod_Apocalypse/113185" },
-  { id: 2, name: "Meshuggah", genre: "Progressive Metal", rating: 7.8, status: true, theme: "Mathematics, Human Nature", country: "Sweden", label: "Nuclear Blast", link: "https://www.metal-archives.com/bands/Meshuggah/240" },
-  { id: 3, name: "Opeth", genre: "Progressive Death Metal", rating: 9.5, status: true, theme: "Nature, Death, Mysticism", country: "Sweden", label: "Moderbolaget", link: "https://www.metal-archives.com/bands/Opeth/755" },
-  { id: 4, name: "Behemoth", genre: "Blackened Death Metal", rating: 8.7, status: true, theme: "Satanism, Anti-Christianity", country: "Poland", label: "Nuclear Blast", link: "https://www.metal-archives.com/bands/Behemoth/605" },
-  { id: 5, name: "Carcass", genre: "Melodic Death Metal", rating: 9.0, status: true, theme: "Gore, Medical Themes", country: "United Kingdom", label: "Nuclear Blast", link: "https://www.metal-archives.com/bands/Carcass/188" },
-  { id: 6, name: "Gojira", genre: "Progressive Metal, Death Metal", rating: 7.2, status: true, theme: "Environmentalism, Nature", country: "France", label: "Roadrunner Records", link: "https://www.metal-archives.com/bands/Gojira/7815" },
-  { id: 7, name: "Amon Amarth", genre: "Melodic Death Metal", rating: 8.9, status: true, theme: "Viking Mythology, Norse Mythology", country: "Sweden", label: "Metal Blade", link: "https://www.metal-archives.com/bands/Amon_Amarth/739" },
-  { id: 8, name: "Dark Tranquillity", genre: "Melodic Death Metal", rating: 9.9, status: true, theme: "Melancholy, War", country: "Sweden", label: "Century Media Records", link: "https://www.metal-archives.com/bands/Dark_Tranquillity/149" },
-  { id: 9, name: "Death", genre: "Death Metal", rating: 9.5, status: false, theme: "Philosophy, Death, Mental Struggles", country: "United States", label: "Relapse Records", link: "https://www.metal-archives.com/bands/Death/70" },
-  { id: 10, name: "Sylosis", genre: "Thrash Metal, Progressive Metal", rating: 7.6, status: true, theme: "Personal Struggles, Inner Turmoil", country: "United Kingdom", label: "Nuclear Blast", link: "https://www.metal-archives.com/bands/Sylosis/35492" },
-  { id: 11, name: "Fleshgod Apocalypse II", genre: "Technical Death Metal", rating: 9.7, status: true, theme: "History", country: "Italy", label: "Nuclear Blast", link: "https://www.metal-archives.com/bands/Fleshgod_Apocalypse/113185" },
-  { id: 12, name: "Meshuggah II", genre: "Progressive Metal", rating: 7.9, status: true, theme: "Science Fiction", country: "Sweden", label: "Nuclear Blast", link: "https://www.metal-archives.com/bands/Meshuggah/240" },
-  { id: 13, name: "Opeth II", genre: "Progressive Death Metal", rating: 9.4, status: true, theme: "Love, Loss", country: "Sweden", label: "Moderbolaget", link: "https://www.metal-archives.com/bands/Opeth/755" },
-  { id: 14, name: "Behemoth II", genre: "Blackened Death Metal", rating: 8.6, status: true, theme: "Occultism", country: "Poland", label: "Nuclear Blast", link: "https://www.metal-archives.com/bands/Behemoth/605" },
-  { id: 15, name: "Carcass II", genre: "Melodic Death Metal", rating: 9.1, status: true, theme: "Politics", country: "United Kingdom", label: "Nuclear Blast", link: "https://www.metal-archives.com/bands/Carcass/188" },
-  { id: 16, name: "Gojira II", genre: "Progressive Metal, Death Metal", rating: 7.1, status: true, theme: "Space", country: "France", label: "Roadrunner Records", link: "https://www.metal-archives.com/bands/Gojira/7815" },
-  { id: 17, name: "Amon Amarth II", genre: "Melodic Death Metal", rating: 8.8, status: true, theme: "Battles", country: "Sweden", label: "Metal Blade", link: "https://www.metal-archives.com/bands/Amon_Amarth/739" },
-  { id: 18, name: "Dark Tranquillity II", genre: "Melodic Death Metal", rating: 9.8, status: true, theme: "Time", country: "Sweden", label: "Century Media Records", link: "https://www.metal-archives.com/bands/Dark_Tranquillity/149" },
-  { id: 19, name: "Death II", genre: "Death Metal", rating: 9.4, status: false, theme: "Society", country: "United States", label: "Relapse Records", link: "https://www.metal-archives.com/bands/Death/70" },
-  { id: 20, name: "Sylosis II", genre: "Thrash Metal, Progressive Metal", rating: 7.5, status: true, theme: "Technology", country: "United Kingdom", label: "Nuclear Blast", link: "https://www.metal-archives.com/bands/Sylosis/35492" },
-  { id: 21, name: "Fleshgod Apocalypse III", genre: "Technical Death Metal", rating: 9.9, status: true, theme: "Mythology", country: "Italy", label: "Nuclear Blast", link: "https://www.metal-archives.com/bands/Fleshgod_Apocalypse/113185" },
-  { id: 22, name: "Meshuggah III", genre: "Progressive Metal", rating: 7.7, status: true, theme: "Existentialism", country: "Sweden", label: "Nuclear Blast", link: "https://www.metal-archives.com/bands/Meshuggah/240" },
-  { id: 23, name: "Opeth III", genre: "Progressive Death Metal", rating: 9.6, status: true, theme: "Seasons", country: "Sweden", label: "Moderbolaget", link: "https://www.metal-archives.com/bands/Opeth/755" },
-  { id: 24, name: "Behemoth III", genre: "Blackened Death Metal", rating: 8.5, status: true, theme: "Apocalypse", country: "Poland", label: "Nuclear Blast", link: "https://www.metal-archives.com/bands/Behemoth/605" },
-  { id: 25, name: "Carcass III", genre: "Melodic Death Metal", rating: 9.2, status: true, theme: "Mortality", country: "United Kingdom", label: "Nuclear Blast", link: "https://www.metal-archives.com/bands/Carcass/188" },
-  { id: 26, name: "Gojira III", genre: "Progressive Metal, Death Metal", rating: 7.3, status: true, theme: "Ocean", country: "France", label: "Roadrunner Records", link: "https://www.metal-archives.com/bands/Gojira/7815" },
-  { id: 27, name: "Amon Amarth III", genre: "Melodic Death Metal", rating: 9.0, status: true, theme: "Gods", country: "Sweden", label: "Metal Blade", link: "https://www.metal-archives.com/bands/Amon_Amarth/739" },
-  { id: 28, name: "Dark Tranquillity III", genre: "Melodic Death Metal", rating: 10.0, status: true, theme: "Dreams", country: "Sweden", label: "Century Media Records", link: "https://www.metal-archives.com/bands/Dark_Tranquillity/149" },
-  { id: 29, name: "Death III", genre: "Death Metal", rating: 9.6, status: false, theme: "Consciousness", country: "United States", label: "Relapse Records", link: "https://www.metal-archives.com/bands/Death/70" },
-  { id: 30, name: "Sylosis III", genre: "Thrash Metal, Progressive Metal", rating: 7.7, status: true, theme: "Dystopia", country: "United Kingdom", label: "Nuclear Blast", link: "https://www.metal-archives.com/bands/Sylosis/35492" },
-];
-
-const generateNewEntity = (): Entity => {
-  const newId = entities.length + 1;
-  return {
-    id: newId,
-    name: `Generated Band ${newId}`,
+const generateNewEntity = async (): Promise<Entity> => {
+  const newEntity = {
+    name: `Generated Band ${Math.floor(Math.random() * 100)}`,
     genre: ["Technical Death Metal", "Progressive Metal", "Melodic Death Metal", "Thrash Metal"][Math.floor(Math.random() * 4)],
     rating: parseFloat((Math.random() * 5 + 5).toFixed(1)),
     status: Math.random() < 0.8,
     theme: ["Philosophy", "Mathematics", "Nature", "Satanism"][Math.floor(Math.random() * 4)],
     country: ["Italy", "Sweden", "Poland", "United Kingdom"][Math.floor(Math.random() * 4)],
     label: ["Nuclear Blast", "Metal Blade", "Century Media Records", "Relapse Records"][Math.floor(Math.random() * 4)],
-    link: "#",
+    link: "#"
   };
+
+  try {
+    return await prisma.band.create({
+      data: newEntity,
+      include: {
+        albums: true
+      }
+    });
+  } catch (error) {
+    console.error('Error creating entity:', error);
+    throw error;
+  }
 };
 
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
   console.log('Client connected:', socket.id);
-  socket.emit('initial_entities', entities);
+  const initialEntities = await prisma.band.findMany();
+  socket.emit('initial_entities', initialEntities);
 
   let generationCount = 0;
-  const maxGenerations = 15;
+  const maxGenerations = 0;
 
-  const entityGenerationInterval = setInterval(() => {
+  const entityGenerationInterval = setInterval(async () => {
     if (generationCount < maxGenerations) {
-      const newEntity = generateNewEntity();
-      entities.push(newEntity);
+      const newEntity = await generateNewEntity();
       io.emit('new_entity', newEntity);
       generationCount++;
     } else {
@@ -162,70 +140,174 @@ app.get("/entities/health", (req, res) => {
   res.sendStatus(200);
 });
 
-app.get("/entities", (req: express.Request, res: express.Response): void => {
-  let { search, sort, order, page, limit } = req.query as unknown as FetchEntitiesParams;
+app.get("/entities", async (req: express.Request, res: express.Response): Promise<void> => {
+  try {
+    let { search, sort, order, page, limit } = req.query as unknown as FetchEntitiesParams;
 
-  let filteredEntities = [...entities];
+    page = page ? Math.max(1, page) : 1;
+    limit = limit ? Math.max(1, limit) : 10;
+    const skip = (page - 1) * limit;
 
-  if (search) {
-    const lowerSearch = search.toLowerCase();
-    filteredEntities = filteredEntities.filter(entity =>
-      entity.name.toLowerCase().includes(lowerSearch) ||
-      entity.genre.toLowerCase().includes(lowerSearch) ||
-      entity.theme.toLowerCase().includes(lowerSearch)
-    );
+    const where = search ? {
+      OR: [
+        { name: { contains: search, mode: 'insensitive' as const } },
+        { genre: { contains: search, mode: 'insensitive' as const } },
+        { theme: { contains: search, mode: 'insensitive' as const } }
+      ]
+    } : {};
+
+    const orderBy = sort ? {
+      [sort]: order === 'desc' ? 'desc' : 'asc'
+    } : undefined;
+
+    const [total, data] = await Promise.all([
+      prisma.band.count({ where }),
+      prisma.band.findMany({
+        where,
+        orderBy,
+        skip,
+        take: limit,
+        include: {
+          albums: true
+        }
+      })
+    ]);
+
+    res.json({ total, page, limit, data });
+  } catch (error) {
+    console.error('Error fetching entities:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
+});
 
-  if (sort && ["name", "genre", "rating", "country", "label"].includes(sort)) {
-    filteredEntities.sort((a, b) => {
-      const valueA = a[sort] as string | number;
-      const valueB = b[sort] as string | number;
+app.post("/entities", async (req: express.Request, res: express.Response): Promise<void> => {
+  try {
+    const newEntity = req.body;
+    
+    // Validate required fields
+    if (!newEntity.name || !newEntity.genre || !newEntity.theme || !newEntity.country || !newEntity.label) {
+      res.status(400).json({ error: 'Missing required fields' });
+      return;
+    }
 
-      if (typeof valueA === "string" && typeof valueB === "string") {
-        return order === "desc" ? valueB.localeCompare(valueA) : valueA.localeCompare(valueB);
+    // Ensure rating is a valid number between 0 and 10
+    const rating = parseFloat(newEntity.rating.toString());
+    if (isNaN(rating) || rating < 0 || rating > 10) {
+      res.status(400).json({ error: 'Rating must be a number between 0 and 10' });
+      return;
+    }
+
+    const createdEntity = await prisma.band.create({
+      data: {
+        name: newEntity.name,
+        genre: newEntity.genre,
+        rating: rating,
+        status: Boolean(newEntity.status),
+        theme: newEntity.theme,
+        country: newEntity.country,
+        label: newEntity.label,
+        link: newEntity.link || '#'
+      },
+      include: {
+        albums: true
       }
-      return order === "desc" ? (valueB as number) - (valueA as number) : (valueA as number) - (valueB as number);
     });
+    
+    io.emit('new_entity', createdEntity);
+    res.status(201).json(createdEntity);
+  } catch (error) {
+    console.error('Error creating entity:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-
-  page = page ? Math.max(1, page) : 1;
-  limit = limit ? Math.max(1, limit) : 10;
-  const startIndex = (page - 1) * limit;
-  const paginatedEntities = filteredEntities.slice(startIndex, startIndex + limit);
-
-  res.json({ total: filteredEntities.length, page, limit, data: paginatedEntities });
 });
 
-app.post("/entities", (req: express.Request, res: express.Response): void => {
-  const newEntity = req.body as Entity;
-  newEntity.id = entities.length + 1;
-  entities.push(newEntity);
-  io.emit('new_entity', newEntity);
-  res.status(201).json(newEntity);
-});
-
-app.put("/entities/:id", (req: express.Request<{ id: string }>, res: express.Response): void => {
-  const id = parseInt(req.params.id, 10);
-  const updatedEntity = req.body as Partial<Entity>;
-
-  const index = entities.findIndex((entity) => entity.id === id);
-  if (index === -1) {
-    res.status(404).json({ message: "Entity not found" });
-    return;
+app.put("/entities/:id", async (req: express.Request, res: express.Response): Promise<void> => {
+  try {
+    const id = parseInt(req.params.id);
+    const updatedEntity = req.body as Entity;
+    
+    const entity = await prisma.band.update({
+      where: { id },
+      data: updatedEntity,
+      include: {
+        albums: true
+      }
+    });
+    
+    io.emit('entity_updated', entity);
+    res.json(entity);
+  } catch (error) {
+    console.error('Error updating entity:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-
-  entities[index] = { ...entities[index], ...updatedEntity };
-  io.emit('updated_entity', { id, updatedEntity });
-  res.json(entities[index]);
 });
 
-app.delete("/entities/:id", (req: express.Request<{ id: string }>, res: express.Response): void => {
-  const id = parseInt(req.params.id, 10);
-  entities = entities.filter((entity) => entity.id !== id);
-  io.emit('deleted_entity', id);
-  res.sendStatus(204);
+app.delete("/entities/:id", async (req: express.Request, res: express.Response): Promise<void> => {
+  try {
+    const id = parseInt(req.params.id);
+    
+    // Delete all albums first, then the band
+    await prisma.$transaction(async (tx) => {
+      await tx.album.deleteMany({
+        where: { bandId: id }
+      });
+      await tx.band.delete({
+        where: { id }
+      });
+    });
+    
+    io.emit('entity_deleted', id);
+    res.sendStatus(204);
+  } catch (error) {
+    console.error('Error deleting entity:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Album endpoints
+app.post("/bands/:bandId/albums", async (req: express.Request, res: express.Response): Promise<void> => {
+  try {
+    const bandId = parseInt(req.params.bandId);
+    const { name, releaseYear, rating } = req.body;
+    
+    const album = await prisma.album.create({
+      data: {
+        name,
+        releaseYear,
+        rating,
+        bandId
+      },
+      include: {
+        band: true
+      }
+    });
+    
+    res.status(201).json(album);
+  } catch (error) {
+    console.error('Error creating album:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get("/bands/:bandId/albums", async (req: express.Request, res: express.Response): Promise<void> => {
+  try {
+    const bandId = parseInt(req.params.bandId);
+    const albums = await prisma.album.findMany({
+      where: {
+        bandId
+      },
+      include: {
+        band: true
+      }
+    });
+    
+    res.json(albums);
+  } catch (error) {
+    console.error('Error fetching albums:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
