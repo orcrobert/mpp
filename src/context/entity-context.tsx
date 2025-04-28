@@ -3,6 +3,14 @@
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from "react";
 import { io, Socket } from 'socket.io-client';
 
+export type Album = {
+    id: number;
+    name: string;
+    releaseYear: number;
+    rating: number;
+    bandId: number;
+};
+
 export type Entity = {
     id: number;
     name: string;
@@ -13,6 +21,7 @@ export type Entity = {
     country: string;
     label: string;
     link: string;
+    albums?: Album[];
 };
 
 type FetchEntitiesParams = {
@@ -34,6 +43,8 @@ type EntityContextType = {
     addEntity: (entity: Omit<Entity, "id">) => Promise<void>;
     deleteEntity: (id: number) => Promise<void>;
     updateEntity: (id: number, updatedEntity: Partial<Entity>) => Promise<void>;
+    addAlbum: (bandId: number, album: Omit<Album, "id" | "bandId">) => Promise<void>;
+    getAlbums: (bandId: number) => Promise<Album[]>;
     topRated: Entity | null;
     averageRated: Entity | null;
     lowestRated: Entity | null;
@@ -107,15 +118,15 @@ export function EntityProvider({ children }: { children: ReactNode }) {
             setEntities((prevEntities) => [...prevEntities, data]);
         });
 
-        socket.on('updated_entity', (data: { id: number; updatedEntity: Partial<Entity> }) => {
+        socket.on('entity_updated', (data: Entity) => {
             setEntities((prevEntities) =>
                 prevEntities.map((entity) =>
-                    entity.id === data.id ? { ...entity, ...data.updatedEntity } : entity
+                    entity.id === data.id ? data : entity
                 )
             );
         });
 
-        socket.on('deleted_entity', (id: number) => {
+        socket.on('entity_deleted', (id: number) => {
             setEntities((prevEntities) => prevEntities.filter((entity) => entity.id !== id));
         });
 
@@ -418,6 +429,50 @@ export function EntityProvider({ children }: { children: ReactNode }) {
         }
     };
 
+    const addAlbum = async (bandId: number, album: Omit<Album, "id" | "bandId">) => {
+        try {
+            const response = await fetch(`${API_URL.replace('/entities', '')}/bands/${bandId}/albums`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(album),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to add album');
+            }
+
+            const newAlbum = await response.json();
+            setEntities((prevEntities) =>
+                prevEntities.map((entity) =>
+                    entity.id === bandId
+                        ? {
+                            ...entity,
+                            albums: [...(entity.albums || []), newAlbum],
+                        }
+                        : entity
+                )
+            );
+        } catch (error) {
+            console.error('Error adding album:', error);
+            throw error;
+        }
+    };
+
+    const getAlbums = async (bandId: number): Promise<Album[]> => {
+        try {
+            const response = await fetch(`${API_URL.replace('/entities', '')}/bands/${bandId}/albums`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch albums');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching albums:', error);
+            return [];
+        }
+    };
+
     return (
         <EntityContext.Provider
             value={{
@@ -425,11 +480,13 @@ export function EntityProvider({ children }: { children: ReactNode }) {
                 addEntity,
                 deleteEntity,
                 updateEntity,
+                addAlbum,
+                getAlbums,
                 topRated,
                 averageRated,
                 lowestRated,
                 chartData,
-                refreshEntities: (params) => refreshEntities(params),
+                refreshEntities,
                 isNetworkDown,
                 isServerDown,
                 isLoading,
@@ -442,7 +499,7 @@ export function EntityProvider({ children }: { children: ReactNode }) {
 
 export function useEntity() {
     const context = useContext(EntityContext);
-    if (!context) {
+    if (context === undefined) {
         throw new Error("useEntity must be used within an EntityProvider");
     }
     return context;
