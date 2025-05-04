@@ -75,7 +75,13 @@ const generateNewEntity = async (): Promise<Entity> => {
 
 io.on('connection', async (socket) => {
   console.log('Client connected:', socket.id);
-  const initialEntities = await prisma.band.findMany();
+  // Only send the first page of entities (e.g., 50) to avoid freezing
+  const initialEntities = await prisma.band.findMany({
+    skip: 0,
+    take: 50,
+    orderBy: { id: 'asc' },
+    include: { albums: true }
+  });
   socket.emit('initial_entities', initialEntities);
 
   let generationCount = 0;
@@ -143,9 +149,8 @@ app.get("/entities/health", (req, res) => {
 app.get("/entities", async (req: express.Request, res: express.Response): Promise<void> => {
   try {
     let { search, sort, order, page, limit } = req.query as unknown as FetchEntitiesParams;
-
     page = page ? Math.max(1, page) : 1;
-    limit = limit ? Math.max(1, limit) : 10;
+    limit = limit ? Math.max(1, limit) : 50;
     const skip = (page - 1) * limit;
 
     const where = search ? {
@@ -172,7 +177,6 @@ app.get("/entities", async (req: express.Request, res: express.Response): Promis
         }
       })
     ]);
-
     res.json({ total, page, limit, data });
   } catch (error) {
     console.error('Error fetching entities:', error);
@@ -292,16 +296,21 @@ app.post("/bands/:bandId/albums", async (req: express.Request, res: express.Resp
 app.get("/bands/:bandId/albums", async (req: express.Request, res: express.Response): Promise<void> => {
   try {
     const bandId = parseInt(req.params.bandId);
-    const albums = await prisma.album.findMany({
-      where: {
-        bandId
-      },
-      include: {
-        band: true
-      }
-    });
-    
-    res.json(albums);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const skip = (page - 1) * limit;
+
+    const [total, albums] = await Promise.all([
+      prisma.album.count({ where: { bandId } }),
+      prisma.album.findMany({
+        where: { bandId },
+        include: { band: true },
+        skip,
+        take: limit,
+        orderBy: { id: 'asc' }
+      })
+    ]);
+    res.json({ total, page, limit, albums });
   } catch (error) {
     console.error('Error fetching albums:', error);
     res.status(500).json({ error: 'Internal server error' });

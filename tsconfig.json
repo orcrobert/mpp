@@ -26,6 +26,6 @@
     "types": ["jest", "@testing-library/jest-dom", "node"],
     "emitDeclarationOnly": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "prisma/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "prisma/**/*.ts", "next.config.js", "next.config.mjs"],
   "exclude": ["node_modules"]
 }
