@@ -5,6 +5,7 @@ import { Bar, Line, Pie } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, LineElement, PointElement, ArcElement } from "chart.js";
 
 import { Flex, Heading } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 
 ChartJS.register(
     CategoryScale,
@@ -20,6 +21,13 @@ ChartJS.register(
 
 const ChartsPage = () => {
     const { chartData } = useEntity();
+    const [topGenres, setTopGenres] = useState([]);
+
+    useEffect(() => {
+        fetch("http://localhost:3000/stats/top-genres-by-average-album-rating")
+            .then(res => res.json())
+            .then(data => setTopGenres(data));
+    }, []);
 
     const genreDistributionData = {
         labels: chartData.genreDistribution.map(item => item.name),
@@ -63,9 +71,10 @@ const ChartsPage = () => {
             direction="column"
             align="center"
             justify="center"
+            gap={8}
             marginTop={16}
         >
-            <Heading marginBottom={10} fontSize="3xl" fontWeight="black">Charts</Heading>
+            <Heading as="h1" size="xl" mb={8}>Charts</Heading>
 
             <div style={{ width: "50%", marginBottom: "40px" }}>
                 <h2>Genre Distribution</h2>
@@ -75,6 +84,20 @@ const ChartsPage = () => {
             <div style={{ width: "50%", marginBottom: "40px" }}>
                 <h2>Ratings Distribution</h2>
                 <Line data={ratingsDistributionData} />
+            </div>
+
+            <div style={{ width: "50%", marginBottom: "40px" }}>
+                <h2>Top Genres by Average Album Rating</h2>
+                <Bar data={{
+                    labels: topGenres.map(g => g.genre),
+                    datasets: [{
+                        label: 'Average Album Rating',
+                        data: topGenres.map(g => Number(g.avg_rating)),
+                        backgroundColor: '#36a2eb',
+                        borderColor: '#36a2eb',
+                        borderWidth: 1,
+                    }],
+                }} />
             </div>
 
             <div style={{ width: "50%", marginBottom: "40px" }}>

@@ -317,6 +317,51 @@ app.get("/bands/:bandId/albums", async (req: express.Request, res: express.Respo
   }
 });
 
+app.get('/stats/top-genres-by-average-album-rating', async (req, res) => {
+  try {
+    const results = await prisma.$queryRaw`
+      SELECT "Band"."genre", AVG("Album"."rating") AS avg_rating, COUNT("Album"."id") AS album_count
+      FROM "Album"
+      JOIN "Band" ON "Album"."bandId" = "Band"."id"
+      GROUP BY "Band"."genre"
+      ORDER BY avg_rating DESC
+      LIMIT 10;
+    `;
+
+    // Process results to convert BigInt to Number
+    const processedResults = results.map(row => ({
+      genre: row.genre,
+      avg_rating: Number(row.avg_rating),
+      album_count: Number(row.album_count)
+    }));
+
+    res.json(processedResults);
+  } catch (error) {
+    console.error('Error fetching statistics:', error);
+    res.status(500).json({ error: 'Internal server error', details: String(error) });
+  }
+});
+
+app.get('/db-check', async (req, res) => {
+  try {
+    const bandCount = await prisma.band.count();
+    const albumCount = await prisma.album.count();
+    res.json({
+      connection: 'OK',
+      bandCount,
+      albumCount,
+      message: 'Database connection successful!'
+    });
+  } catch (error) {
+    console.error('Database connection error:', error);
+    res.status(500).json({ error: 'Database connection failed', details: String(error) });
+  }
+});
+
+app.get('/stats/test', (req, res) => {
+  res.json({ message: 'Statistics endpoint is working!' });
+});
+
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
