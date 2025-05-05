@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -27,6 +26,13 @@ model Band {
   albums    Album[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([name])
+  @@index([genre])
+  @@index([rating])
+  @@index([country])
+  @@index([genre, rating])
+  @@index([country, rating])
 }
 
 model Album {
@@ -38,4 +44,55 @@ model Album {
   bandId      Int
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([name])
+  @@index([releaseYear])
+  @@index([rating])
+  @@index([bandId])
+  @@index([bandId, rating])
+  @@index([releaseYear, rating])
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  password  String
+  role      UserRole  @default(USER)
+  logs      UserLog[]
+  monitored MonitoredUser?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([email])
+}
+
+model UserLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  action    String   // CREATE, READ, UPDATE, DELETE
+  entity    String   // The entity being acted upon (e.g., "Band", "Album")
+  entityId  Int      // The ID of the entity
+  details   String?  // Additional details about the action
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([action])
+}
+
+model MonitoredUser {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id])
+  reason    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }

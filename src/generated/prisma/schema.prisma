@@ -27,6 +27,13 @@ model Band {
   albums    Album[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([name])
+  @@index([genre])
+  @@index([rating])
+  @@index([country])
+  @@index([genre, rating])
+  @@index([country, rating])
 }
 
 model Album {
@@ -38,4 +45,11 @@ model Album {
   bandId      Int
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([name])
+  @@index([releaseYear])
+  @@index([rating])
+  @@index([bandId])
+  @@index([bandId, rating])
+  @@index([releaseYear, rating])
 }

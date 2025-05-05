@@ -43,6 +43,9 @@ npm run seed
 1. Start the backend server (default port: 3000):
 ```bash
 npx ts-node --esm src/server/api.ts
+
+# see that the complex statistic is working
+curl http://localhost:3000/stats/top-genres-by-average-album-rating 
 ```
 
 2. Start the frontend development server (default port: 3001):

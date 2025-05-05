@@ -26,7 +26,7 @@ export type Album = $Result.DefaultSelection<Prisma.$AlbumPayload>
 
 /**
  * ##  Prisma Client ʲˢ
- *
+ * 
  * Type-safe database client for TypeScript & Node.js
  * @example
  * ```
@@ -35,7 +35,7 @@ export type Album = $Result.DefaultSelection<Prisma.$AlbumPayload>
  * const bands = await prisma.band.findMany()
  * ```
  *
- *
+ * 
  * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
  */
 export class PrismaClient<
@@ -47,7 +47,7 @@ export class PrismaClient<
 
     /**
    * ##  Prisma Client ʲˢ
-   *
+   * 
    * Type-safe database client for TypeScript & Node.js
    * @example
    * ```
@@ -56,12 +56,12 @@ export class PrismaClient<
    * const bands = await prisma.band.findMany()
    * ```
    *
-   *
+   * 
    * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
    */
 
   constructor(optionsArg ?: Prisma.Subset<ClientOptions, Prisma.PrismaClientOptions>);
-  $on<V extends U>(eventType: V, callback: (event: V extends 'query' ? Prisma.QueryEvent : Prisma.LogEvent) => void): PrismaClient;
+  $on<V extends U>(eventType: V, callback: (event: V extends 'query' ? Prisma.QueryEvent : Prisma.LogEvent) => void): void;
 
   /**
    * Connect with the database
@@ -86,7 +86,7 @@ export class PrismaClient<
    * ```
    * const result = await prisma.$executeRaw`UPDATE User SET cool = ${true} WHERE email = ${'user@email.com'};`
    * ```
-   *
+   * 
    * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
    */
   $executeRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<number>;
@@ -98,7 +98,7 @@ export class PrismaClient<
    * ```
    * const result = await prisma.$executeRawUnsafe('UPDATE User SET cool = $1 WHERE email = $2 ;', true, 'user@email.com')
    * ```
-   *
+   * 
    * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
    */
   $executeRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<number>;
@@ -109,7 +109,7 @@ export class PrismaClient<
    * ```
    * const result = await prisma.$queryRaw`SELECT * FROM User WHERE id = ${1} OR email = ${'user@email.com'};`
    * ```
-   *
+   * 
    * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
    */
   $queryRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<T>;
@@ -121,7 +121,7 @@ export class PrismaClient<
    * ```
    * const result = await prisma.$queryRawUnsafe('SELECT * FROM User WHERE id = $1 OR email = $2;', 1, 'user@email.com')
    * ```
-   *
+   * 
    * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
    */
   $queryRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<T>;
@@ -145,9 +145,7 @@ export class PrismaClient<
   $transaction<R>(fn: (prisma: Omit<PrismaClient, runtime.ITXClientDenyList>) => $Utils.JsPromise<R>, options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<R>
 
 
-  $extends: $Extensions.ExtendsHook<"extends", Prisma.TypeMapCb<ClientOptions>, ExtArgs, $Utils.Call<Prisma.TypeMapCb<ClientOptions>, {
-    extArgs: ExtArgs
-  }>>
+  $extends: $Extensions.ExtendsHook<"extends", Prisma.TypeMapCb, ExtArgs>
 
       /**
    * `prisma.band`: Exposes CRUD operations for the **Band** model.
@@ -157,7 +155,7 @@ export class PrismaClient<
     * const bands = await prisma.band.findMany()
     * ```
     */
-  get band(): Prisma.BandDelegate<ExtArgs, ClientOptions>;
+  get band(): Prisma.BandDelegate<ExtArgs>;
 
   /**
    * `prisma.album`: Exposes CRUD operations for the **Album** model.
@@ -167,7 +165,7 @@ export class PrismaClient<
     * const albums = await prisma.album.findMany()
     * ```
     */
-  get album(): Prisma.AlbumDelegate<ExtArgs, ClientOptions>;
+  get album(): Prisma.AlbumDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -188,6 +186,7 @@ export namespace Prisma {
   export import PrismaClientRustPanicError = runtime.PrismaClientRustPanicError
   export import PrismaClientInitializationError = runtime.PrismaClientInitializationError
   export import PrismaClientValidationError = runtime.PrismaClientValidationError
+  export import NotFoundError = runtime.NotFoundError
 
   /**
    * Re-export of sql-template-tag
@@ -208,7 +207,7 @@ export namespace Prisma {
   export type DecimalJsLike = runtime.DecimalJsLike
 
   /**
-   * Metrics
+   * Metrics 
    */
   export type Metrics = runtime.Metrics
   export type Metric<T> = runtime.Metric<T>
@@ -226,14 +225,14 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 6.6.0
-   * Query Engine version: f676762280b54cd07c770017ed3711ddde35f37a
+   * Prisma Client JS version: 5.22.0
+   * Query Engine version: 605197351a3c8bdd595af2d2a9bc3025bca48ea2
    */
   export type PrismaVersion = {
     client: string
   }
 
-  export const prismaVersion: PrismaVersion
+  export const prismaVersion: PrismaVersion 
 
   /**
    * Utility Types
@@ -249,15 +248,15 @@ export namespace Prisma {
 
   /**
    * Types of the values used to represent different kinds of `null` values when working with JSON fields.
-   *
+   * 
    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
    */
   namespace NullTypes {
     /**
     * Type of `Prisma.DbNull`.
-    *
+    * 
     * You cannot use other instances of this class. Please use the `Prisma.DbNull` value.
-    *
+    * 
     * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
     */
     class DbNull {
@@ -267,9 +266,9 @@ export namespace Prisma {
 
     /**
     * Type of `Prisma.JsonNull`.
-    *
+    * 
     * You cannot use other instances of this class. Please use the `Prisma.JsonNull` value.
-    *
+    * 
     * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
     */
     class JsonNull {
@@ -279,9 +278,9 @@ export namespace Prisma {
 
     /**
     * Type of `Prisma.AnyNull`.
-    *
+    * 
     * You cannot use other instances of this class. Please use the `Prisma.AnyNull` value.
-    *
+    * 
     * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
     */
     class AnyNull {
@@ -292,21 +291,21 @@ export namespace Prisma {
 
   /**
    * Helper for filtering JSON entries that have `null` on the database (empty on the db)
-   *
+   * 
    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
    */
   export const DbNull: NullTypes.DbNull
 
   /**
    * Helper for filtering JSON entries that have JSON `null` values (not empty on the db)
-   *
+   * 
    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
    */
   export const JsonNull: NullTypes.JsonNull
 
   /**
    * Helper for filtering JSON entries that are `Prisma.DbNull` or `Prisma.JsonNull`
-   *
+   * 
    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
    */
   export const AnyNull: NullTypes.AnyNull
@@ -494,7 +493,7 @@ export namespace Prisma {
   type AtLeast<O extends object, K extends string> = NoExpand<
     O extends unknown
     ? | (K extends keyof O ? { [P in K]: O[P] } & O : O)
-      | {[P in keyof O as P extends K ? P : never]-?: O[P]} & O
+      | {[P in keyof O as P extends K ? K : never]-?: O[P]} & O
     : never>;
 
   type _Strict<U, _U = U> = U extends unknown ? U & OptionalFlat<_Record<Exclude<Keys<_U>, keyof U>, never>> : never;
@@ -619,14 +618,11 @@ export namespace Prisma {
     db?: Datasource
   }
 
-  interface TypeMapCb<ClientOptions = {}> extends $Utils.Fn<{extArgs: $Extensions.InternalArgs }, $Utils.Record<string, any>> {
-    returns: Prisma.TypeMap<this['params']['extArgs'], ClientOptions extends { omit: infer OmitOptions } ? OmitOptions : {}>
+  interface TypeMapCb extends $Utils.Fn<{extArgs: $Extensions.InternalArgs, clientOptions: PrismaClientOptions }, $Utils.Record<string, any>> {
+    returns: Prisma.TypeMap<this['params']['extArgs'], this['params']['clientOptions']>
   }
 
-  export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> = {
-    globalOmitOptions: {
-      omit: GlobalOmitOptions
-    }
+  export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
       modelProps: "band" | "album"
       txIsolationLevel: Prisma.TransactionIsolationLevel
@@ -683,10 +679,6 @@ export namespace Prisma {
           updateMany: {
             args: Prisma.BandUpdateManyArgs<ExtArgs>
             result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.BandUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$BandPayload>[]
           }
           upsert: {
             args: Prisma.BandUpsertArgs<ExtArgs>
@@ -757,10 +749,6 @@ export namespace Prisma {
           updateMany: {
             args: Prisma.AlbumUpdateManyArgs<ExtArgs>
             result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.AlbumUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlbumPayload>[]
           }
           upsert: {
             args: Prisma.AlbumUpsertArgs<ExtArgs>
@@ -847,26 +835,8 @@ export namespace Prisma {
       timeout?: number
       isolationLevel?: Prisma.TransactionIsolationLevel
     }
-    /**
-     * Global configuration for omitting model fields by default.
-     * 
-     * @example
-     * ```
-     * const prisma = new PrismaClient({
-     *   omit: {
-     *     user: {
-     *       password: true
-     *     }
-     *   }
-     * })
-     * ```
-     */
-    omit?: Prisma.GlobalOmitConfig
   }
-  export type GlobalOmitConfig = {
-    band?: BandOmit
-    album?: AlbumOmit
-  }
+
 
   /* Types for Logging */
   export type LogLevel = 'info' | 'query' | 'warn' | 'error'
@@ -907,7 +877,6 @@ export namespace Prisma {
     | 'createManyAndReturn'
     | 'update'
     | 'updateMany'
-    | 'updateManyAndReturn'
     | 'upsert'
     | 'delete'
     | 'deleteMany'
@@ -1258,20 +1227,6 @@ export namespace Prisma {
     updatedAt?: boolean
   }, ExtArgs["result"]["band"]>
 
-  export type BandSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    name?: boolean
-    genre?: boolean
-    rating?: boolean
-    status?: boolean
-    theme?: boolean
-    country?: boolean
-    label?: boolean
-    link?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }, ExtArgs["result"]["band"]>
-
   export type BandSelectScalar = {
     id?: boolean
     name?: boolean
@@ -1286,13 +1241,11 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type BandOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "genre" | "rating" | "status" | "theme" | "country" | "label" | "link" | "createdAt" | "updatedAt", ExtArgs["result"]["band"]>
   export type BandInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     albums?: boolean | Band$albumsArgs<ExtArgs>
     _count?: boolean | BandCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type BandIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
-  export type BandIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
   export type $BandPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Band"
@@ -1317,12 +1270,12 @@ export namespace Prisma {
 
   type BandGetPayload<S extends boolean | null | undefined | BandDefaultArgs> = $Result.GetResult<Prisma.$BandPayload, S>
 
-  type BandCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<BandFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  type BandCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<BandFindManyArgs, 'select' | 'include' | 'distinct'> & {
       select?: BandCountAggregateInputType | true
     }
 
-  export interface BandDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  export interface BandDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Band'], meta: { name: 'Band' } }
     /**
      * Find zero or one Band that matches the filter.
@@ -1335,10 +1288,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends BandFindUniqueArgs>(args: SelectSubset<T, BandFindUniqueArgs<ExtArgs>>): Prisma__BandClient<$Result.GetResult<Prisma.$BandPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends BandFindUniqueArgs>(args: SelectSubset<T, BandFindUniqueArgs<ExtArgs>>): Prisma__BandClient<$Result.GetResult<Prisma.$BandPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one Band that matches the filter or throw an error with `error.code='P2025'`
+     * Find one Band that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
      * @param {BandFindUniqueOrThrowArgs} args - Arguments to find a Band
      * @example
@@ -1349,7 +1302,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends BandFindUniqueOrThrowArgs>(args: SelectSubset<T, BandFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BandClient<$Result.GetResult<Prisma.$BandPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends BandFindUniqueOrThrowArgs>(args: SelectSubset<T, BandFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BandClient<$Result.GetResult<Prisma.$BandPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
      * Find the first Band that matches the filter.
@@ -1364,7 +1317,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends BandFindFirstArgs>(args?: SelectSubset<T, BandFindFirstArgs<ExtArgs>>): Prisma__BandClient<$Result.GetResult<Prisma.$BandPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends BandFindFirstArgs>(args?: SelectSubset<T, BandFindFirstArgs<ExtArgs>>): Prisma__BandClient<$Result.GetResult<Prisma.$BandPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
      * Find the first Band that matches the filter or
@@ -1380,7 +1333,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends BandFindFirstOrThrowArgs>(args?: SelectSubset<T, BandFindFirstOrThrowArgs<ExtArgs>>): Prisma__BandClient<$Result.GetResult<Prisma.$BandPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends BandFindFirstOrThrowArgs>(args?: SelectSubset<T, BandFindFirstOrThrowArgs<ExtArgs>>): Prisma__BandClient<$Result.GetResult<Prisma.$BandPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
      * Find zero or more Bands that matches the filter.
@@ -1398,7 +1351,7 @@ export namespace Prisma {
      * const bandWithIdOnly = await prisma.band.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends BandFindManyArgs>(args?: SelectSubset<T, BandFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BandPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends BandFindManyArgs>(args?: SelectSubset<T, BandFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BandPayload<ExtArgs>, T, "findMany">>
 
     /**
      * Create a Band.
@@ -1412,7 +1365,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends BandCreateArgs>(args: SelectSubset<T, BandCreateArgs<ExtArgs>>): Prisma__BandClient<$Result.GetResult<Prisma.$BandPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends BandCreateArgs>(args: SelectSubset<T, BandCreateArgs<ExtArgs>>): Prisma__BandClient<$Result.GetResult<Prisma.$BandPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
      * Create many Bands.
@@ -1440,7 +1393,7 @@ export namespace Prisma {
      * })
      * 
      * // Create many Bands and only return the `id`
-     * const bandWithIdOnly = await prisma.band.createManyAndReturn({
+     * const bandWithIdOnly = await prisma.band.createManyAndReturn({ 
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -1450,7 +1403,7 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends BandCreateManyAndReturnArgs>(args?: SelectSubset<T, BandCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BandPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+    createManyAndReturn<T extends BandCreateManyAndReturnArgs>(args?: SelectSubset<T, BandCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BandPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
      * Delete a Band.
@@ -1464,7 +1417,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends BandDeleteArgs>(args: SelectSubset<T, BandDeleteArgs<ExtArgs>>): Prisma__BandClient<$Result.GetResult<Prisma.$BandPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends BandDeleteArgs>(args: SelectSubset<T, BandDeleteArgs<ExtArgs>>): Prisma__BandClient<$Result.GetResult<Prisma.$BandPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
      * Update one Band.
@@ -1481,7 +1434,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends BandUpdateArgs>(args: SelectSubset<T, BandUpdateArgs<ExtArgs>>): Prisma__BandClient<$Result.GetResult<Prisma.$BandPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends BandUpdateArgs>(args: SelectSubset<T, BandUpdateArgs<ExtArgs>>): Prisma__BandClient<$Result.GetResult<Prisma.$BandPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
      * Delete zero or more Bands.
@@ -1517,36 +1470,6 @@ export namespace Prisma {
     updateMany<T extends BandUpdateManyArgs>(args: SelectSubset<T, BandUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more Bands and returns the data updated in the database.
-     * @param {BandUpdateManyAndReturnArgs} args - Arguments to update many Bands.
-     * @example
-     * // Update many Bands
-     * const band = await prisma.band.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more Bands and only return the `id`
-     * const bandWithIdOnly = await prisma.band.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends BandUpdateManyAndReturnArgs>(args: SelectSubset<T, BandUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BandPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
      * Create or update one Band.
      * @param {BandUpsertArgs} args - Arguments to update or create a Band.
      * @example
@@ -1563,7 +1486,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends BandUpsertArgs>(args: SelectSubset<T, BandUpsertArgs<ExtArgs>>): Prisma__BandClient<$Result.GetResult<Prisma.$BandPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends BandUpsertArgs>(args: SelectSubset<T, BandUpsertArgs<ExtArgs>>): Prisma__BandClient<$Result.GetResult<Prisma.$BandPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
@@ -1703,9 +1626,9 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__BandClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__BandClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    albums<T extends Band$albumsArgs<ExtArgs> = {}>(args?: Subset<T, Band$albumsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    albums<T extends Band$albumsArgs<ExtArgs> = {}>(args?: Subset<T, Band$albumsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1733,7 +1656,7 @@ export namespace Prisma {
 
   /**
    * Fields of the Band model
-   */
+   */ 
   interface BandFieldRefs {
     readonly id: FieldRef<"Band", 'Int'>
     readonly name: FieldRef<"Band", 'String'>
@@ -1759,10 +1682,6 @@ export namespace Prisma {
      */
     select?: BandSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Band
-     */
-    omit?: BandOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: BandInclude<ExtArgs> | null
@@ -1781,10 +1700,6 @@ export namespace Prisma {
      */
     select?: BandSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Band
-     */
-    omit?: BandOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: BandInclude<ExtArgs> | null
@@ -1802,10 +1717,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Band
      */
     select?: BandSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Band
-     */
-    omit?: BandOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -1855,10 +1766,6 @@ export namespace Prisma {
      */
     select?: BandSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Band
-     */
-    omit?: BandOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: BandInclude<ExtArgs> | null
@@ -1907,10 +1814,6 @@ export namespace Prisma {
      */
     select?: BandSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Band
-     */
-    omit?: BandOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: BandInclude<ExtArgs> | null
@@ -1954,10 +1857,6 @@ export namespace Prisma {
      */
     select?: BandSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Band
-     */
-    omit?: BandOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: BandInclude<ExtArgs> | null
@@ -1987,10 +1886,6 @@ export namespace Prisma {
      */
     select?: BandSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the Band
-     */
-    omit?: BandOmit<ExtArgs> | null
-    /**
      * The data used to create many Bands.
      */
     data: BandCreateManyInput | BandCreateManyInput[]
@@ -2005,10 +1900,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Band
      */
     select?: BandSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Band
-     */
-    omit?: BandOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -2035,36 +1926,6 @@ export namespace Prisma {
      * Filter which Bands to update
      */
     where?: BandWhereInput
-    /**
-     * Limit how many Bands to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * Band updateManyAndReturn
-   */
-  export type BandUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Band
-     */
-    select?: BandSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Band
-     */
-    omit?: BandOmit<ExtArgs> | null
-    /**
-     * The data used to update Bands.
-     */
-    data: XOR<BandUpdateManyMutationInput, BandUncheckedUpdateManyInput>
-    /**
-     * Filter which Bands to update
-     */
-    where?: BandWhereInput
-    /**
-     * Limit how many Bands to update.
-     */
-    limit?: number
   }
 
   /**
@@ -2075,10 +1936,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Band
      */
     select?: BandSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Band
-     */
-    omit?: BandOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -2106,10 +1963,6 @@ export namespace Prisma {
      */
     select?: BandSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Band
-     */
-    omit?: BandOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: BandInclude<ExtArgs> | null
@@ -2127,10 +1980,6 @@ export namespace Prisma {
      * Filter which Bands to delete
      */
     where?: BandWhereInput
-    /**
-     * Limit how many Bands to delete.
-     */
-    limit?: number
   }
 
   /**
@@ -2141,10 +1990,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Album
      */
     select?: AlbumSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Album
-     */
-    omit?: AlbumOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -2165,10 +2010,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Band
      */
     select?: BandSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Band
-     */
-    omit?: BandOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -2416,17 +2257,6 @@ export namespace Prisma {
     band?: boolean | BandDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["album"]>
 
-  export type AlbumSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    name?: boolean
-    releaseYear?: boolean
-    rating?: boolean
-    bandId?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    band?: boolean | BandDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["album"]>
-
   export type AlbumSelectScalar = {
     id?: boolean
     name?: boolean
@@ -2437,14 +2267,10 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type AlbumOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "releaseYear" | "rating" | "bandId" | "createdAt" | "updatedAt", ExtArgs["result"]["album"]>
   export type AlbumInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     band?: boolean | BandDefaultArgs<ExtArgs>
   }
   export type AlbumIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    band?: boolean | BandDefaultArgs<ExtArgs>
-  }
-  export type AlbumIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     band?: boolean | BandDefaultArgs<ExtArgs>
   }
 
@@ -2467,12 +2293,12 @@ export namespace Prisma {
 
   type AlbumGetPayload<S extends boolean | null | undefined | AlbumDefaultArgs> = $Result.GetResult<Prisma.$AlbumPayload, S>
 
-  type AlbumCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<AlbumFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  type AlbumCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<AlbumFindManyArgs, 'select' | 'include' | 'distinct'> & {
       select?: AlbumCountAggregateInputType | true
     }
 
-  export interface AlbumDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  export interface AlbumDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Album'], meta: { name: 'Album' } }
     /**
      * Find zero or one Album that matches the filter.
@@ -2485,10 +2311,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends AlbumFindUniqueArgs>(args: SelectSubset<T, AlbumFindUniqueArgs<ExtArgs>>): Prisma__AlbumClient<$Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends AlbumFindUniqueArgs>(args: SelectSubset<T, AlbumFindUniqueArgs<ExtArgs>>): Prisma__AlbumClient<$Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one Album that matches the filter or throw an error with `error.code='P2025'`
+     * Find one Album that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
      * @param {AlbumFindUniqueOrThrowArgs} args - Arguments to find a Album
      * @example
@@ -2499,7 +2325,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends AlbumFindUniqueOrThrowArgs>(args: SelectSubset<T, AlbumFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AlbumClient<$Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends AlbumFindUniqueOrThrowArgs>(args: SelectSubset<T, AlbumFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AlbumClient<$Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
      * Find the first Album that matches the filter.
@@ -2514,7 +2340,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends AlbumFindFirstArgs>(args?: SelectSubset<T, AlbumFindFirstArgs<ExtArgs>>): Prisma__AlbumClient<$Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends AlbumFindFirstArgs>(args?: SelectSubset<T, AlbumFindFirstArgs<ExtArgs>>): Prisma__AlbumClient<$Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
      * Find the first Album that matches the filter or
@@ -2530,7 +2356,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends AlbumFindFirstOrThrowArgs>(args?: SelectSubset<T, AlbumFindFirstOrThrowArgs<ExtArgs>>): Prisma__AlbumClient<$Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends AlbumFindFirstOrThrowArgs>(args?: SelectSubset<T, AlbumFindFirstOrThrowArgs<ExtArgs>>): Prisma__AlbumClient<$Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
      * Find zero or more Albums that matches the filter.
@@ -2548,7 +2374,7 @@ export namespace Prisma {
      * const albumWithIdOnly = await prisma.album.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends AlbumFindManyArgs>(args?: SelectSubset<T, AlbumFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends AlbumFindManyArgs>(args?: SelectSubset<T, AlbumFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "findMany">>
 
     /**
      * Create a Album.
@@ -2562,7 +2388,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends AlbumCreateArgs>(args: SelectSubset<T, AlbumCreateArgs<ExtArgs>>): Prisma__AlbumClient<$Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends AlbumCreateArgs>(args: SelectSubset<T, AlbumCreateArgs<ExtArgs>>): Prisma__AlbumClient<$Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
      * Create many Albums.
@@ -2590,7 +2416,7 @@ export namespace Prisma {
      * })
      * 
      * // Create many Albums and only return the `id`
-     * const albumWithIdOnly = await prisma.album.createManyAndReturn({
+     * const albumWithIdOnly = await prisma.album.createManyAndReturn({ 
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -2600,7 +2426,7 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends AlbumCreateManyAndReturnArgs>(args?: SelectSubset<T, AlbumCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+    createManyAndReturn<T extends AlbumCreateManyAndReturnArgs>(args?: SelectSubset<T, AlbumCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
      * Delete a Album.
@@ -2614,7 +2440,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends AlbumDeleteArgs>(args: SelectSubset<T, AlbumDeleteArgs<ExtArgs>>): Prisma__AlbumClient<$Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends AlbumDeleteArgs>(args: SelectSubset<T, AlbumDeleteArgs<ExtArgs>>): Prisma__AlbumClient<$Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
      * Update one Album.
@@ -2631,7 +2457,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends AlbumUpdateArgs>(args: SelectSubset<T, AlbumUpdateArgs<ExtArgs>>): Prisma__AlbumClient<$Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends AlbumUpdateArgs>(args: SelectSubset<T, AlbumUpdateArgs<ExtArgs>>): Prisma__AlbumClient<$Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
      * Delete zero or more Albums.
@@ -2667,36 +2493,6 @@ export namespace Prisma {
     updateMany<T extends AlbumUpdateManyArgs>(args: SelectSubset<T, AlbumUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more Albums and returns the data updated in the database.
-     * @param {AlbumUpdateManyAndReturnArgs} args - Arguments to update many Albums.
-     * @example
-     * // Update many Albums
-     * const album = await prisma.album.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more Albums and only return the `id`
-     * const albumWithIdOnly = await prisma.album.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends AlbumUpdateManyAndReturnArgs>(args: SelectSubset<T, AlbumUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
      * Create or update one Album.
      * @param {AlbumUpsertArgs} args - Arguments to update or create a Album.
      * @example
@@ -2713,7 +2509,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends AlbumUpsertArgs>(args: SelectSubset<T, AlbumUpsertArgs<ExtArgs>>): Prisma__AlbumClient<$Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends AlbumUpsertArgs>(args: SelectSubset<T, AlbumUpsertArgs<ExtArgs>>): Prisma__AlbumClient<$Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
@@ -2853,9 +2649,9 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__AlbumClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__AlbumClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    band<T extends BandDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BandDefaultArgs<ExtArgs>>): Prisma__BandClient<$Result.GetResult<Prisma.$BandPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    band<T extends BandDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BandDefaultArgs<ExtArgs>>): Prisma__BandClient<$Result.GetResult<Prisma.$BandPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2883,7 +2679,7 @@ export namespace Prisma {
 
   /**
    * Fields of the Album model
-   */
+   */ 
   interface AlbumFieldRefs {
     readonly id: FieldRef<"Album", 'Int'>
     readonly name: FieldRef<"Album", 'String'>
@@ -2905,10 +2701,6 @@ export namespace Prisma {
      */
     select?: AlbumSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Album
-     */
-    omit?: AlbumOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AlbumInclude<ExtArgs> | null
@@ -2927,10 +2719,6 @@ export namespace Prisma {
      */
     select?: AlbumSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Album
-     */
-    omit?: AlbumOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AlbumInclude<ExtArgs> | null
@@ -2948,10 +2736,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Album
      */
     select?: AlbumSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Album
-     */
-    omit?: AlbumOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -3001,10 +2785,6 @@ export namespace Prisma {
      */
     select?: AlbumSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Album
-     */
-    omit?: AlbumOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AlbumInclude<ExtArgs> | null
@@ -3053,10 +2833,6 @@ export namespace Prisma {
      */
     select?: AlbumSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Album
-     */
-    omit?: AlbumOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AlbumInclude<ExtArgs> | null
@@ -3100,10 +2876,6 @@ export namespace Prisma {
      */
     select?: AlbumSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Album
-     */
-    omit?: AlbumOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AlbumInclude<ExtArgs> | null
@@ -3133,10 +2905,6 @@ export namespace Prisma {
      */
     select?: AlbumSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the Album
-     */
-    omit?: AlbumOmit<ExtArgs> | null
-    /**
      * The data used to create many Albums.
      */
     data: AlbumCreateManyInput | AlbumCreateManyInput[]
@@ -3155,10 +2923,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Album
      */
     select?: AlbumSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Album
-     */
-    omit?: AlbumOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -3185,40 +2949,6 @@ export namespace Prisma {
      * Filter which Albums to update
      */
     where?: AlbumWhereInput
-    /**
-     * Limit how many Albums to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * Album updateManyAndReturn
-   */
-  export type AlbumUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Album
-     */
-    select?: AlbumSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Album
-     */
-    omit?: AlbumOmit<ExtArgs> | null
-    /**
-     * The data used to update Albums.
-     */
-    data: XOR<AlbumUpdateManyMutationInput, AlbumUncheckedUpdateManyInput>
-    /**
-     * Filter which Albums to update
-     */
-    where?: AlbumWhereInput
-    /**
-     * Limit how many Albums to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: AlbumIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -3229,10 +2959,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Album
      */
     select?: AlbumSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Album
-     */
-    omit?: AlbumOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -3260,10 +2986,6 @@ export namespace Prisma {
      */
     select?: AlbumSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Album
-     */
-    omit?: AlbumOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AlbumInclude<ExtArgs> | null
@@ -3281,10 +3003,6 @@ export namespace Prisma {
      * Filter which Albums to delete
      */
     where?: AlbumWhereInput
-    /**
-     * Limit how many Albums to delete.
-     */
-    limit?: number
   }
 
   /**
@@ -3295,10 +3013,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Album
      */
     select?: AlbumSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Album
-     */
-    omit?: AlbumOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -3367,7 +3081,7 @@ export namespace Prisma {
 
 
   /**
-   * Field references
+   * Field references 
    */
 
 
@@ -3535,7 +3249,7 @@ export namespace Prisma {
     bandId?: IntFilter<"Album"> | number
     createdAt?: DateTimeFilter<"Album"> | Date | string
     updatedAt?: DateTimeFilter<"Album"> | Date | string
-    band?: XOR<BandScalarRelationFilter, BandWhereInput>
+    band?: XOR<BandRelationFilter, BandWhereInput>
   }
 
   export type AlbumOrderByWithRelationInput = {
@@ -3560,7 +3274,7 @@ export namespace Prisma {
     bandId?: IntFilter<"Album"> | number
     createdAt?: DateTimeFilter<"Album"> | Date | string
     updatedAt?: DateTimeFilter<"Album"> | Date | string
-    band?: XOR<BandScalarRelationFilter, BandWhereInput>
+    band?: XOR<BandRelationFilter, BandWhereInput>
   }, "id">
 
   export type AlbumOrderByWithAggregationInput = {
@@ -3943,7 +3657,7 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type BandScalarRelationFilter = {
+  export type BandRelationFilter = {
     is?: BandWhereInput
     isNot?: BandWhereInput
   }
@@ -4361,6 +4075,22 @@ export namespace Prisma {
   }
 
 
+
+  /**
+   * Aliases for legacy arg types
+   */
+    /**
+     * @deprecated Use BandCountOutputTypeDefaultArgs instead
+     */
+    export type BandCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = BandCountOutputTypeDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use BandDefaultArgs instead
+     */
+    export type BandArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = BandDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use AlbumDefaultArgs instead
+     */
+    export type AlbumArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AlbumDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany
