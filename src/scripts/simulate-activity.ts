@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { logUserAction } from '../lib/monitoring';
+import { logUserAction, checkUserActivity } from '../lib/monitoring';
 
 const prisma = new PrismaClient();
 
@@ -7,10 +7,10 @@ async function simulateSuspiciousActivity() {
   try {
     // Create a test user if it doesn't exist
     const testUser = await prisma.user.upsert({
-      where: { email: 'test@example.com' },
+      where: { email: 'test@example2.com' },
       update: {},
       create: {
-        email: 'test@example.com',
+        email: 'test@example2.com',
         password: 'password123',
         role: 'USER',
       },
@@ -62,6 +62,10 @@ async function simulateSuspiciousActivity() {
       );
     }
 
+    // Check user activity immediately after simulation
+    const isMonitored = await checkUserActivity(testUser.id);
+    console.log('User monitoring status:', isMonitored ? 'Added to monitored users' : 'Not monitored');
+
     console.log('Suspicious activity simulation completed');
   } catch (error) {
     console.error('Error simulating suspicious activity:', error);
@@ -71,4 +75,4 @@ async function simulateSuspiciousActivity() {
 }
 
 // Run the simulation
-simulateSuspiciousActivity(); 
+simulateSuspiciousActivity();
