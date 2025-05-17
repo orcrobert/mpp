@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Roboto_Mono, Fira_Code } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/navbar";
+import AuthNavbar from "@/components/auth-navbar";
 import { EntityProvider } from "@/context/entity-context";
 import { ChakraProvider } from "@chakra-ui/react";
 import { Provider } from "@/components/ui/provider";
@@ -51,7 +51,7 @@ export default function RootLayout({
         className={`${firaCode.variable} ${robotoMono.variable} antialiased`}>
         <Provider>
           <EntityProvider>
-            <Navbar />
+            <AuthNavbar />
             <Toaster />
             {children}
           </EntityProvider>
