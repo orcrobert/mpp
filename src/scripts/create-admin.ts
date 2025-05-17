@@ -1,30 +1,37 @@
-import { PrismaClient } from '@prisma/client';
-import { hashPassword } from '../lib/auth';
+import prisma from '../server/db';
+import bcrypt from 'bcrypt';
 
-const prisma = new PrismaClient();
-
-async function createAdminUser() {
+async function createAdmin() {
   try {
-    const hashedPassword = await hashPassword('admin123');
-    const admin = await prisma.user.upsert({
-      where: { email: 'admin@example.com' },
-      update: {
-        role: 'ADMIN',
-        password: hashedPassword,
-      },
-      create: {
-        email: 'admin@example.com',
-        password: hashedPassword,
-        role: 'ADMIN',
-      },
+    const adminEmail = 'admin@example.com';
+    const adminPassword = 'admin123'; // You should change this in production
+
+    // Check if admin exists
+    const existingAdmin = await prisma.user.findUnique({
+      where: { email: adminEmail }
     });
 
-    console.log('Admin user created:', admin.email);
+    if (existingAdmin) {
+      console.log('Admin user already exists:', existingAdmin);
+      return;
+    }
+
+    // Create admin user
+    const hashedPassword = await bcrypt.hash(adminPassword, 10);
+    const admin = await prisma.user.create({
+      data: {
+        email: adminEmail,
+        password: hashedPassword,
+        role: 'ADMIN'
+      }
+    });
+
+    console.log('Admin user created:', admin);
   } catch (error) {
-    console.error('Error creating admin user:', error);
+    console.error('Error creating admin:', error);
   } finally {
     await prisma.$disconnect();
   }
 }
 
-createAdminUser(); 
+createAdmin(); 
