@@ -97,8 +97,8 @@ export function EntityProvider({ children }: { children: ReactNode }) {
         }
     );
 
-    const API_URL = "http://localhost:3000/entities";
-    const WS_URL = "http://localhost:3000";
+    const API_URL = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/entities`;
+    const WS_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
     useEffect(() => {
         const socket: Socket = io(WS_URL);

@@ -20,9 +20,10 @@ const productionDependencies = {
   name: pkg.name,
   version: pkg.version,
   type: "module",
-  main: "server/api.js",
+  main: "api.js",
   scripts: {
-    start: "node server/api.js"
+    start: "node api.js",
+    "server:start": "node api.js"
   },
   dependencies: pkg.dependencies,
   engines: {
@@ -76,6 +77,18 @@ fs.writeFileSync(
   'DATABASE_URL="postgresql://placeholder:placeholder@placeholder:5432/placeholder"\n' +
   'JWT_SECRET="placeholder"\n'
 );
+
+// Check for compiled server files
+console.log('Verifying compiled server files...');
+const apiJsFile = path.join(__dirname, 'dist', 'api.js');
+const dbJsFile = path.join(__dirname, 'dist', 'db.js');
+
+if (!fs.existsSync(apiJsFile)) {
+  console.error('api.js was not found in the dist directory.');
+  console.error('Make sure server:build command completed successfully.');
+} else {
+  console.log('✓ Server files found successfully');
+}
 
 // Install production dependencies
 console.log('Installing production dependencies...');

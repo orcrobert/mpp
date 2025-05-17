@@ -11,7 +11,7 @@ interface LoginResponse {
 }
 
 export async function loginUser(email: string, password: string): Promise<LoginResponse> {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/auth/login`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://production.eba-g7dytnbr.eu-north-1.elasticbeanstalk.com'}/api/auth/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ export async function verifyToken(): Promise<{ userId: number; email: string; ro
   if (!token) return null;
   
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/auth/verify`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://production.eba-g7dytnbr.eu-north-1.elasticbeanstalk.com'}/api/auth/verify`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

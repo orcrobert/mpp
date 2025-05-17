@@ -27,7 +27,7 @@ const FileUploadDownloadPage = () => {
         formData.append("file", selectedFile);
 
         try {
-            const response = await fetch("http://localhost:3000/upload", {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/upload`, {
                 method: "POST",
                 body: formData,
             });
@@ -55,7 +55,7 @@ const FileUploadDownloadPage = () => {
         }
 
         setDownloadStatus("Attempting download...");
-        const downloadUrl = `http://localhost:3000/download/${downloadFilename}`;
+        const downloadUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/download/${downloadFilename}`;
 
         const link = document.createElement('a');
         link.href = downloadUrl;
