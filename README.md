@@ -46,6 +46,9 @@ npx ts-node --esm src/server/api.ts
 
 # see that the complex statistic is working
 curl http://localhost:3000/stats/top-genres-by-average-album-rating 
+
+# run the jmx file
+jmeter -n -t top-genres-by-average-album-rating.jmx -l results1.jtl
 ```
 
 2. Start the frontend development server (default port: 3001):

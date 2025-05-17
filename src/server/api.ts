@@ -7,26 +7,40 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import prisma from './db.ts';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: {
-    origin: 'http://localhost:3001',
+    origin: process.env.NODE_ENV === 'production' 
+      ? [process.env.FRONTEND_URL || 'https://your-frontend-domain.com'] 
+      : ['http://localhost:3001', 'http://localhost:3000'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
   }
 });
 
 app.use(express.json());
 app.use(cors({
-  origin: 'http://localhost:3001',
+  origin: process.env.NODE_ENV === 'production' 
+    ? [process.env.FRONTEND_URL || 'https://your-frontend-domain.com'] 
+    : ['http://localhost:3001', 'http://localhost:3000'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
 }));
 
 const PORT = process.env.PORT || 3000;
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export type FetchEntitiesParams = {
   search?: string;
@@ -362,6 +376,73 @@ app.get('/stats/test', (req, res) => {
   res.json({ message: 'Statistics endpoint is working!' });
 });
 
+// Auth endpoints
+app.post("/api/auth/login", async (req: express.Request, res: express.Response): Promise<void> => {
+  try {
+    console.log('Received login request');
+    console.log('Request body:', req.body);
+    const { email, password } = req.body;
+    console.log('Login attempt for email:', email);
+
+    // Find user by email
+    const user = await prisma.user.findUnique({
+      where: { email }
+    });
+
+    console.log('User found:', user ? 'Yes' : 'No');
+    if (user) {
+      console.log('User details:', {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        hasPassword: !!user.password,
+        passwordLength: user.password?.length
+      });
+    }
+
+    if (!user) {
+      console.log('No user found with email:', email);
+      res.status(401).json({ error: 'Invalid credentials' });
+      return;
+    }
+
+    // Verify password
+    console.log('Attempting password comparison');
+    console.log('Input password length:', password.length);
+    console.log('Stored password hash length:', user.password.length);
+    
+    const validPassword = await bcrypt.compare(password, user.password);
+    console.log('Password comparison result:', validPassword);
+
+    if (!validPassword) {
+      console.log('Invalid password for user:', email);
+      res.status(401).json({ error: 'Invalid credentials' });
+      return;
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user.id, role: user.role },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    console.log('Login successful for user:', email);
+    // Return user data and token
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role
+      }
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
 });
