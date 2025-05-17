@@ -1,5 +1,5 @@
 import prisma from '../server/db';
-import bcrypt from 'bcrypt';
+import { hashPassword } from '../lib/auth-server';
 
 async function updateAdminPassword() {
   try {
@@ -7,7 +7,7 @@ async function updateAdminPassword() {
     const newPassword = 'password123';
 
     // Hash the new password
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const hashedPassword = await hashPassword(newPassword);
     console.log('Generated hash length:', hashedPassword.length);
 
     // Update the admin user

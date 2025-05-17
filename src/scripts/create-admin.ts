@@ -1,10 +1,10 @@
 import prisma from '../server/db';
-import bcrypt from 'bcrypt';
+import { hashPassword } from '../lib/auth-server';
 
 async function createAdmin() {
   try {
     const adminEmail = 'admin@example.com';
-    const adminPassword = 'admin123'; // You should change this in production
+    const adminPassword = 'password123'; // You should change this in production
 
     // Check if admin exists
     const existingAdmin = await prisma.user.findUnique({
@@ -17,7 +17,7 @@ async function createAdmin() {
     }
 
     // Create admin user
-    const hashedPassword = await bcrypt.hash(adminPassword, 10);
+    const hashedPassword = await hashPassword(adminPassword);
     const admin = await prisma.user.create({
       data: {
         email: adminEmail,

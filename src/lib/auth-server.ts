@@ -1,13 +1,5 @@
-// =====================================================================
-// WARNING: THIS FILE IS DEPRECATED AND WILL BE DELETED
-// DO NOT USE IN FRONTEND CODE
-// 
-// For frontend authentication, use auth-client.ts
-// For backend/server authentication, use auth-server.ts
-// =====================================================================
-
 // This file is for server-side use only and should not be imported in frontend code
-// It has been renamed to auth-server.ts to make this clear
+// It contains Node.js specific dependencies not supported in Edge Runtime
 
 import { PrismaClient, User } from '@prisma/client';
 import bcrypt from 'bcryptjs';

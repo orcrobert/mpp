@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { verifyToken } from './lib/auth';
+import { verifyToken } from './lib/auth-server';
 import { logUserAction } from './lib/monitoring';
 
 export async function middleware(request: NextRequest) {

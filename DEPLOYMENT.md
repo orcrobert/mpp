@@ -2,6 +2,15 @@
 
 This guide explains how to deploy the Metal-DB application.
 
+## Authentication Architecture
+
+The application uses a separated authentication architecture:
+
+1. `src/lib/auth-client.ts` - Edge-compatible authentication for the frontend (deployed to Vercel)
+2. `src/lib/auth-server.ts` - Node.js-specific authentication for the backend (deployed to AWS)
+
+This separation ensures compatibility with Vercel's Edge Runtime.
+
 ## Frontend Deployment with Vercel
 
 ### 1. Preparing your frontend for deployment

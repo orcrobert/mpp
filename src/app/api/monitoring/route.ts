@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getMonitoredUsers } from '@/lib/monitoring';
-import { verifyToken } from '@/lib/auth';
+import { verifyToken } from '@/lib/auth-server';
 
 export async function GET(request: Request) {
   try {
