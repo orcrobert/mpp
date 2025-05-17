@@ -20,7 +20,7 @@ export default function Home() {
     <div className="">
       <Header />
       <section id="table-view-section">
-        <DataGrid entities={entities} />
+        <DataGrid />
         <Legend />
       </section>
       <Footer />

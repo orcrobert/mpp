@@ -1,4 +1,4 @@
-import { Table, Button, Checkbox, Text, Flex, IconButton } from "@chakra-ui/react";
+import { Table, Button, Checkbox, Text, Flex } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { useEntity, Entity } from "@/context/entity-context";
 import { useRouter } from "next/navigation";
@@ -271,21 +271,23 @@ export default function DataGrid() {
 
                 {hasEntities && (
                     <Flex align="center" gap={2}>
-                        <IconButton
+                        <Button
                             aria-label="Previous page"
-                            icon={<ChevronLeft />}
                             size="sm"
                             onClick={handlePrevPage}
                             disabled={currentPage === 1 || isLoading}
-                        />
+                        >
+                            <ChevronLeft size={16} />
+                        </Button>
                         <Text>Page {currentPage} of {totalPages || 1}</Text>
-                        <IconButton
+                        <Button
                             aria-label="Next page"
-                            icon={<ChevronRight />}
                             size="sm"
                             onClick={handleNextPage}
                             disabled={currentPage >= totalPages || isLoading || entities.length < itemsPerPage}
-                        />
+                        >
+                            <ChevronRight size={16} />
+                        </Button>
                     </Flex>
                 )}
             </Flex>

@@ -6,7 +6,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import prisma from './db.ts';
+import prisma from './db';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
@@ -334,7 +334,14 @@ app.get("/bands/:bandId/albums", async (req: express.Request, res: express.Respo
 
 app.get('/stats/top-genres-by-average-album-rating', async (req, res) => {
   try {
-    const results = await prisma.$queryRaw`
+    // Define a type for the raw query results
+    interface GenreStatsRaw {
+      genre: string;
+      avg_rating: any; // Could be BigInt or string from raw SQL
+      album_count: any; // Could be BigInt or string from raw SQL
+    }
+
+    const results = await prisma.$queryRaw<GenreStatsRaw[]>`
       SELECT "Band"."genre", AVG("Album"."rating") AS avg_rating, COUNT("Album"."id") AS album_count
       FROM "Album"
       JOIN "Band" ON "Album"."bandId" = "Band"."id"

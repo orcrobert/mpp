@@ -19,9 +19,16 @@ ChartJS.register(
     Legend
 );
 
+// Define a type for the topGenres data
+interface GenreStats {
+    genre: string;
+    avg_rating: number;
+    album_count: number;
+}
+
 const ChartsPage = () => {
     const { chartData } = useEntity();
-    const [topGenres, setTopGenres] = useState([]);
+    const [topGenres, setTopGenres] = useState<GenreStats[]>([]);
 
     useEffect(() => {
         fetch("http://localhost:3000/stats/top-genres-by-average-album-rating")
