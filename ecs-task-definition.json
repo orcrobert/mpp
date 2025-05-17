@@ -1,0 +1,55 @@
+{
+  "family": "metal-db-task",
+  "networkMode": "awsvpc",
+  "executionRoleArn": "${ECS_EXECUTION_ROLE_ARN}",
+  "taskRoleArn": "${ECS_TASK_ROLE_ARN}",
+  "containerDefinitions": [
+    {
+      "name": "web",
+      "image": "${ECR_REPOSITORY_URI}:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "hostPort": 3000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        { "name": "NODE_ENV", "value": "production" },
+        { "name": "DATABASE_URL", "value": "${DATABASE_URL}" },
+        { "name": "JWT_SECRET", "value": "${JWT_SECRET}" },
+        { "name": "FRONTEND_URL", "value": "${FRONTEND_URL}" }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/metal-db",
+          "awslogs-region": "eu-north-1",
+          "awslogs-stream-prefix": "web"
+        }
+      },
+      "mountPoints": [
+        {
+          "sourceVolume": "uploads",
+          "containerPath": "/app/uploads",
+          "readOnly": false
+        }
+      ],
+      "memory": 1024,
+      "cpu": 256
+    }
+  ],
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "volumes": [
+    {
+      "name": "uploads",
+      "efsVolumeConfiguration": {
+        "fileSystemId": "${EFS_FILE_SYSTEM_ID}",
+        "rootDirectory": "/"
+      }
+    }
+  ]
+} 
