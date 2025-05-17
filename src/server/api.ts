@@ -9,15 +9,21 @@ import { fileURLToPath } from 'url';
 import prisma from './db.ts';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: {
-    origin: ['http://localhost:3001', 'http://localhost:3000'],
+    origin: process.env.NODE_ENV === 'production' 
+      ? [process.env.FRONTEND_URL || 'https://your-frontend-domain.com'] 
+      : ['http://localhost:3001', 'http://localhost:3000'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
   }
@@ -25,7 +31,9 @@ const io = new SocketIOServer(server, {
 
 app.use(express.json());
 app.use(cors({
-  origin: ['http://localhost:3001', 'http://localhost:3000'],
+  origin: process.env.NODE_ENV === 'production' 
+    ? [process.env.FRONTEND_URL || 'https://your-frontend-domain.com'] 
+    : ['http://localhost:3001', 'http://localhost:3000'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 }));
@@ -436,5 +444,5 @@ app.post("/api/auth/login", async (req: express.Request, res: express.Response):
 });
 
 server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
 });
