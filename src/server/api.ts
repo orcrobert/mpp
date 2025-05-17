@@ -10,6 +10,7 @@ import prisma from './db.ts';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { Prisma } from '@prisma/client';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -93,7 +94,7 @@ io.on('connection', async (socket) => {
   const initialEntities = await prisma.band.findMany({
     skip: 0,
     take: 50,
-    orderBy: { id: 'asc' },
+    orderBy: { id: Prisma.SortOrder.asc },
     include: { albums: true }
   });
   socket.emit('initial_entities', initialEntities);
@@ -169,9 +170,9 @@ app.get("/entities", async (req: express.Request, res: express.Response): Promis
 
     const where = search ? {
       OR: [
-        { name: { contains: search, mode: 'insensitive' as const } },
-        { genre: { contains: search, mode: 'insensitive' as const } },
-        { theme: { contains: search, mode: 'insensitive' as const } }
+        { name: { contains: search, mode: Prisma.QueryMode.insensitive } },
+        { genre: { contains: search, mode: Prisma.QueryMode.insensitive } },
+        { theme: { contains: search, mode: Prisma.QueryMode.insensitive } }
       ]
     } : {};
 
@@ -321,7 +322,7 @@ app.get("/bands/:bandId/albums", async (req: express.Request, res: express.Respo
         include: { band: true },
         skip,
         take: limit,
-        orderBy: { id: 'asc' }
+        orderBy: { id: Prisma.SortOrder.asc }
       })
     ]);
     res.json({ total, page, limit, albums });

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -15,16 +15,16 @@ export async function GET(request: Request) {
     const where = search
       ? {
           OR: [
-            { name: { contains: search, mode: 'insensitive' } },
-            { genre: { contains: search, mode: 'insensitive' } },
-            { country: { contains: search, mode: 'insensitive' } },
+            { name: { contains: search, mode: Prisma.QueryMode.insensitive } },
+            { genre: { contains: search, mode: Prisma.QueryMode.insensitive } },
+            { country: { contains: search, mode: Prisma.QueryMode.insensitive } },
           ],
         }
       : {};
 
     const orderBy = sort
-      ? { [sort]: order || 'asc' }
-      : { rating: 'desc' };
+      ? { [sort]: order === 'desc' ? Prisma.SortOrder.desc : Prisma.SortOrder.asc }
+      : { rating: Prisma.SortOrder.desc };
 
     const [entities, total] = await Promise.all([
       prisma.band.findMany({
@@ -41,7 +41,7 @@ export async function GET(request: Request) {
               rating: true,
             },
             orderBy: {
-              rating: 'desc',
+              rating: Prisma.SortOrder.desc,
             },
             take: 5, // Limit to top 5 albums per band
           },
@@ -76,14 +76,14 @@ export async function POST(request: Request) {
         const stats = await prisma.band.groupBy({
           by: ['genre'],
           _count: {
-            _all: true,
+            id: true
           },
           _avg: {
             rating: true,
           },
           orderBy: {
             _count: {
-              _all: 'desc',
+              id: Prisma.SortOrder.desc
             },
           },
         });
@@ -96,14 +96,14 @@ export async function POST(request: Request) {
         const stats = await prisma.band.groupBy({
           by: ['country'],
           _count: {
-            _all: true,
+            id: true
           },
           _avg: {
             rating: true,
           },
           orderBy: {
             _count: {
-              _all: 'desc',
+              id: Prisma.SortOrder.desc
             },
           },
         });
@@ -116,13 +116,13 @@ export async function POST(request: Request) {
         const stats = await prisma.album.groupBy({
           by: ['releaseYear'],
           _count: {
-            _all: true,
+            id: true
           },
           _avg: {
             rating: true,
           },
           orderBy: {
-            releaseYear: 'asc',
+            releaseYear: Prisma.SortOrder.asc,
           },
         });
 
@@ -148,7 +148,7 @@ export async function POST(request: Request) {
             },
           },
           orderBy: {
-            rating: 'desc',
+            rating: Prisma.SortOrder.desc,
           },
           take: 100, // Limit to top 100 bands
         });
