@@ -75,7 +75,8 @@ fs.copyFileSync(
 fs.writeFileSync(
   path.join(__dirname, 'dist', '.env'),
   'DATABASE_URL="postgresql://placeholder:placeholder@placeholder:5432/placeholder"\n' +
-  'JWT_SECRET="placeholder"\n'
+  'JWT_SECRET="placeholder"\n' +
+  'PORT="8080"\n'
 );
 
 // Check for compiled server files

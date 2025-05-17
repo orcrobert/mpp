@@ -39,7 +39,7 @@ app.use(cors({
   credentials: true
 }));
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -415,14 +415,10 @@ app.post("/api/auth/login", async (req: express.Request, res: express.Response):
     }
 
     // Verify password
-    console.log('Attempting password comparison');
-    console.log('Input password length:', password.length);
-    console.log('Stored password hash length:', user.password.length);
-    
-    const validPassword = await bcrypt.compare(password, user.password);
-    console.log('Password comparison result:', validPassword);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    console.log('Password valid:', isPasswordValid);
 
-    if (!validPassword) {
+    if (!isPasswordValid) {
       console.log('Invalid password for user:', email);
       res.status(401).json({ error: 'Invalid credentials' });
       return;
@@ -430,13 +426,12 @@ app.post("/api/auth/login", async (req: express.Request, res: express.Response):
 
     // Generate JWT token
     const token = jwt.sign(
-      { userId: user.id, role: user.role },
+      { userId: user.id, email: user.email, role: user.role },
       JWT_SECRET,
       { expiresIn: '24h' }
     );
 
     console.log('Login successful for user:', email);
-    // Return user data and token
     res.json({
       token,
       user: {
@@ -451,47 +446,57 @@ app.post("/api/auth/login", async (req: express.Request, res: express.Response):
   }
 });
 
-// Registration endpoint
+// Register endpoint
 app.post("/api/auth/register", async (req: express.Request, res: express.Response): Promise<void> => {
   try {
     console.log('Received registration request');
     console.log('Request body:', req.body);
     const { email, password } = req.body;
     
-    if (!email || !password) {
-      res.status(400).json({ error: 'Email and password are required' });
-      return;
-    }
-    
-    // Check if user already exists
+    // Check if email is already in use
     const existingUser = await prisma.user.findUnique({
       where: { email }
     });
     
     if (existingUser) {
-      res.status(400).json({ error: 'Email already exists' });
+      console.log('Email already in use:', email);
+      res.status(400).json({ error: 'Email already in use' });
       return;
     }
     
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // Create user
-    const user = await prisma.user.create({
+    // Create new user
+    const newUser = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
-        role: 'USER'
+        role: 'USER' // Default role
       }
     });
     
-    // Don't return the password
-    const { password: _, ...userWithoutPassword } = user;
+    console.log('User registered successfully:', email);
     
-    console.log('User registered successfully:', userWithoutPassword);
-    res.status(201).json(userWithoutPassword);
+    // Return user data (excluding password)
+    res.status(201).json({
+      id: newUser.id,
+      email: newUser.email,
+      role: newUser.role,
+      createdAt: newUser.createdAt,
+      updatedAt: newUser.updatedAt
+    });
   } catch (error) {
     console.error('Registration error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get("/api/auth/verify", async (req: express.Request, res: express.Response): Promise<void> => {
+  try {
+    // ... existing code ...
+  } catch (error) {
+    console.error('Error verifying user:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
