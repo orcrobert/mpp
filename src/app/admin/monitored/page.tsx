@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { getAuthToken } from '@/lib/auth-client';
 
 interface MonitoredUser {
   id: number;
@@ -23,13 +24,13 @@ export default function MonitoredUsersPage() {
   useEffect(() => {
     const fetchMonitoredUsers = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = getAuthToken();
         if (!token) {
           router.push('/login');
           return;
         }
 
-        const response = await fetch('/api/monitoring', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/monitoring`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
