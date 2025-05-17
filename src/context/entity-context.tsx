@@ -85,7 +85,7 @@ export function EntityProvider({ children }: { children: ReactNode }) {
         ratingsDistribution: [],
         topRatedEntities: [],
     });
-    const [isNetworkDown, setIsNetworkDown] = useState(!navigator.onLine);
+    const [isNetworkDown, setIsNetworkDown] = useState(typeof navigator !== 'undefined' ? !navigator.onLine : false);
     const [isServerDown, setIsServerDown] = useState(false);
     const [pendingOperations, setPendingOperations] = useState<PendingOperation[]>(
         () => {
