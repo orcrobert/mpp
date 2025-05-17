@@ -98,7 +98,8 @@ export function EntityProvider({ children }: { children: ReactNode }) {
         }
     );
 
-    const API_URL = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/entities`;
+    // Use the Next.js proxy route instead of direct backend URL to avoid mixed content errors
+    const API_URL = `/api/proxy/entities`;
     // Socket.IO disabled for now
     // const WS_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 

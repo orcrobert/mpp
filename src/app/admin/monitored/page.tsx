@@ -30,7 +30,7 @@ export default function MonitoredUsersPage() {
           return;
         }
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/monitoring`, {
+        const response = await fetch(`/api/proxy/api/monitoring`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

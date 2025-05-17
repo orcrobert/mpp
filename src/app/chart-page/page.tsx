@@ -31,7 +31,7 @@ const ChartsPage = () => {
     const [topGenres, setTopGenres] = useState<GenreStats[]>([]);
 
     useEffect(() => {
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/stats/top-genres-by-average-album-rating`)
+        fetch(`/api/proxy/stats/top-genres-by-average-album-rating`)
             .then(res => res.json())
             .then(data => setTopGenres(data));
     }, []);
