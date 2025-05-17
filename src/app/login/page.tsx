@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { loginUser, setAuthToken } from '@/lib/auth-client';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -15,27 +16,13 @@ export default function LoginPage() {
 
     try {
       console.log('Attempting login with:', { email, password });
-      const response = await fetch('http://localhost:3000/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      console.log('Response status:', response.status);
-      const data = await response.json();
-      console.log('Response data:', data);
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
-      }
-
+      const result = await loginUser(email, password);
+      
       // Store the token
-      localStorage.setItem('token', data.token);
+      setAuthToken(result.token);
 
       // Redirect based on role
-      if (data.user.role === 'ADMIN') {
+      if (result.user.role === 'ADMIN') {
         router.push('/admin');
       } else {
         router.push('/');
