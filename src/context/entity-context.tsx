@@ -1,7 +1,8 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from "react";
-import { io, Socket } from 'socket.io-client';
+// Socket.IO disabled for now
+// import { io, Socket } from 'socket.io-client';
 
 export type Album = {
     id: number;
@@ -98,13 +99,24 @@ export function EntityProvider({ children }: { children: ReactNode }) {
     );
 
     const API_URL = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/entities`;
-    const WS_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    // Socket.IO disabled for now
+    // const WS_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
     useEffect(() => {
-        const socket: Socket = io(WS_URL);
+        // Socket.IO connection disabled for now
+        /*
+        // Only attempt Socket.IO connection in the browser
+        if (typeof window === 'undefined') return;
+        
+        const socket: Socket = io(WS_URL, {
+            reconnectionAttempts: 5,
+            timeout: 10000,
+            transports: ['websocket', 'polling'], // Try websocket first, fallback to polling
+        });
 
         socket.on('connect', () => {
             console.log("Socket.IO connected:", socket.id);
+            setIsServerDown(false);
         });
 
         socket.on('initial_entities', (data: Entity[]) => {
@@ -134,12 +146,15 @@ export function EntityProvider({ children }: { children: ReactNode }) {
 
         socket.on('connect_error', (error) => {
             console.error("Socket.IO connection error:", error);
+            // Don't mark server as down immediately for socket errors
+            // We'll rely on the API health check for that
         });
 
         return () => {
             socket.disconnect();
         };
-    }, [WS_URL]);
+        */
+    }, []);  // Removed WS_URL dependency since it's not used
 
     const checkServerStatus = useCallback(async () => {
         try {
@@ -151,6 +166,9 @@ export function EntityProvider({ children }: { children: ReactNode }) {
     }, [API_URL]);
 
     useEffect(() => {
+        // Only run in browser
+        if (typeof window === 'undefined') return;
+        
         const handleOnline = () => setIsNetworkDown(false);
         const handleOffline = () => setIsNetworkDown(true);
 
