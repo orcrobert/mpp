@@ -3,17 +3,11 @@ import { NextRequest, NextResponse } from 'next/server';
 // Get the backend URL from environment variables or use a default
 const BACKEND_URL = process.env.BACKEND_URL || 'http://production.eba-g7dytnbr.eu-north-1.elasticbeanstalk.com';
 
-type RouteParams = {
-  params: {
-    path: string[]
-  }
-}
-
 export async function GET(
   request: NextRequest,
-  context: RouteParams
+  { params }: { params: { path: string[] } }
 ) {
-  const path = context.params.path.join('/');
+  const path = params.path.join('/');
   const url = new URL(request.url);
   const backendUrl = `${BACKEND_URL}/${path}${url.search}`;
   
@@ -56,9 +50,9 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  context: RouteParams
+  { params }: { params: { path: string[] } }
 ) {
-  const path = context.params.path.join('/');
+  const path = params.path.join('/');
   const backendUrl = `${BACKEND_URL}/${path}`;
   
   try {
@@ -109,9 +103,9 @@ export async function POST(
 
 export async function PUT(
   request: NextRequest,
-  context: RouteParams
+  { params }: { params: { path: string[] } }
 ) {
-  const path = context.params.path.join('/');
+  const path = params.path.join('/');
   const backendUrl = `${BACKEND_URL}/${path}`;
   
   try {
@@ -140,9 +134,9 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  context: RouteParams
+  { params }: { params: { path: string[] } }
 ) {
-  const path = context.params.path.join('/');
+  const path = params.path.join('/');
   const backendUrl = `${BACKEND_URL}/${path}`;
   
   try {
