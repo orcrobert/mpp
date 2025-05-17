@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { registerUser } from '@/lib/auth-client';
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
@@ -28,19 +29,7 @@ export default function RegisterPage() {
     }
 
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Registration failed');
-      }
-
+      await registerUser(email, password);
       setSuccess(true);
       
       // Redirect to login after a short delay

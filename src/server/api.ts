@@ -451,6 +451,51 @@ app.post("/api/auth/login", async (req: express.Request, res: express.Response):
   }
 });
 
+// Registration endpoint
+app.post("/api/auth/register", async (req: express.Request, res: express.Response): Promise<void> => {
+  try {
+    console.log('Received registration request');
+    console.log('Request body:', req.body);
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+      res.status(400).json({ error: 'Email and password are required' });
+      return;
+    }
+    
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email }
+    });
+    
+    if (existingUser) {
+      res.status(400).json({ error: 'Email already exists' });
+      return;
+    }
+    
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Create user
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        role: 'USER'
+      }
+    });
+    
+    // Don't return the password
+    const { password: _, ...userWithoutPassword } = user;
+    
+    console.log('User registered successfully:', userWithoutPassword);
+    res.status(201).json(userWithoutPassword);
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
 });

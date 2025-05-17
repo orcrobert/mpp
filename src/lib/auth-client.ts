@@ -10,6 +10,31 @@ interface LoginResponse {
   };
 }
 
+interface RegisterResponse {
+  id: number;
+  email: string;
+  role: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function registerUser(email: string, password: string): Promise<RegisterResponse> {
+  const response = await fetch(`/api/proxy/api/auth/register`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Registration failed');
+  }
+
+  return response.json();
+}
+
 export async function loginUser(email: string, password: string): Promise<LoginResponse> {
   const response = await fetch(`/api/proxy/api/auth/login`, {
     method: 'POST',
