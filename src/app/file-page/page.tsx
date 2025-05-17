@@ -54,17 +54,32 @@ const FileUploadDownloadPage = () => {
             return;
         }
 
-        setDownloadStatus("Attempting download...");
-        const downloadUrl = `/api/proxy/download/${downloadFilename}`;
-
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.setAttribute('download', downloadFilename);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        setDownloadStatus(`Download initiated for ${downloadFilename}. Check your downloads.`);
+        setDownloadStatus("Downloading...");
+        
+        // For file downloads, we need to directly access the backend, 
+        // but use the proxy URL pattern to avoid mixed content
+        fetch(`/api/proxy/download/${downloadFilename}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to download file");
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                // Create a download link for the blob
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', downloadFilename);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+                setDownloadStatus(`Download complete for ${downloadFilename}.`);
+            })
+            .catch(error => {
+                setDownloadStatus(`Download failed: ${error.message}`);
+            });
     };
 
     return (
@@ -105,7 +120,7 @@ const FileUploadDownloadPage = () => {
                     </label>
                     <Input type="text" id="download-file-input" value={downloadFilename} onChange={handleDownloadChange} />
                 </Box>
-                <Button colorScheme="green" onClick={handleDownload} loading={downloadStatus === "Attempting download..."}>
+                <Button colorScheme="green" onClick={handleDownload} loading={downloadStatus === "Downloading..."}>
                     Download
                 </Button>
                 {downloadStatus && <Text marginTop={2}>{downloadStatus}</Text>}

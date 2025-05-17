@@ -3,18 +3,23 @@ import { NextRequest, NextResponse } from 'next/server';
 // Get the backend URL from environment variables or use a default
 const BACKEND_URL = process.env.BACKEND_URL || 'http://production.eba-g7dytnbr.eu-north-1.elasticbeanstalk.com';
 
+type RouteParams = {
+  params: {
+    path: string[]
+  }
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  context: RouteParams
 ) {
-  const path = params.path.join('/');
+  const path = context.params.path.join('/');
   const url = new URL(request.url);
   const backendUrl = `${BACKEND_URL}/${path}${url.search}`;
   
   try {
     const response = await fetch(backendUrl, {
       headers: {
-        'Content-Type': 'application/json',
         // Forward authentication header if present
         ...(request.headers.get('Authorization') 
           ? { 'Authorization': request.headers.get('Authorization') as string } 
@@ -22,8 +27,24 @@ export async function GET(
       },
     });
     
-    const data = await response.json();
-    return NextResponse.json(data);
+    // Check if response is JSON
+    const contentType = response.headers.get('content-type') || '';
+    
+    if (contentType.includes('application/json')) {
+      const data = await response.json();
+      return NextResponse.json(data);
+    } else {
+      // Handle binary data or other content types (like file downloads)
+      const blob = await response.blob();
+      return new NextResponse(blob, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: {
+          'Content-Type': contentType,
+          'Content-Disposition': response.headers.get('Content-Disposition') || '',
+        }
+      });
+    }
   } catch (error) {
     console.error(`Error proxying request to ${backendUrl}:`, error);
     return NextResponse.json(
@@ -35,26 +56,48 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  context: RouteParams
 ) {
-  const path = params.path.join('/');
+  const path = context.params.path.join('/');
   const backendUrl = `${BACKEND_URL}/${path}`;
   
   try {
-    const body = await request.json();
-    const response = await fetch(backendUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(request.headers.get('Authorization') 
-          ? { 'Authorization': request.headers.get('Authorization') as string } 
-          : {})
-      },
-      body: JSON.stringify(body),
-    });
+    // Check if the request is a form data upload
+    const contentType = request.headers.get('content-type') || '';
     
-    const data = await response.json();
-    return NextResponse.json(data);
+    if (contentType.includes('multipart/form-data')) {
+      // Handle file uploads by forwarding the FormData
+      const formData = await request.formData();
+      const response = await fetch(backendUrl, {
+        method: 'POST',
+        headers: {
+          // Don't set content-type for FormData, browser will set it with boundary
+          ...(request.headers.get('Authorization') 
+            ? { 'Authorization': request.headers.get('Authorization') as string } 
+            : {})
+        },
+        body: formData,
+      });
+      
+      const data = await response.json();
+      return NextResponse.json(data);
+    } else {
+      // Regular JSON API call
+      const body = await request.json();
+      const response = await fetch(backendUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(request.headers.get('Authorization') 
+            ? { 'Authorization': request.headers.get('Authorization') as string } 
+            : {})
+        },
+        body: JSON.stringify(body),
+      });
+      
+      const data = await response.json();
+      return NextResponse.json(data);
+    }
   } catch (error) {
     console.error(`Error proxying POST request to ${backendUrl}:`, error);
     return NextResponse.json(
@@ -66,9 +109,9 @@ export async function POST(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  context: RouteParams
 ) {
-  const path = params.path.join('/');
+  const path = context.params.path.join('/');
   const backendUrl = `${BACKEND_URL}/${path}`;
   
   try {
@@ -97,9 +140,9 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  context: RouteParams
 ) {
-  const path = params.path.join('/');
+  const path = context.params.path.join('/');
   const backendUrl = `${BACKEND_URL}/${path}`;
   
   try {
