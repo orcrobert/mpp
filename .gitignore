@@ -186,3 +186,6 @@ next-env.d.ts
 *.zip
 tmp-deploy/
 dist/
+*.zip
+tmp-deploy/
+dist/
