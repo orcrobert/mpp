@@ -5,11 +5,11 @@ const BACKEND_URL = process.env.BACKEND_URL || 'http://production.eba-g7dytnbr.e
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  const path = params.path.join('/');
+  const { path } = await params;
   const url = new URL(request.url);
-  const backendUrl = `${BACKEND_URL}/${path}${url.search}`;
+  const backendUrl = `${BACKEND_URL}/${path.join('/')}${url.search}`;
   
   try {
     const response = await fetch(backendUrl, {
@@ -50,10 +50,10 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  const path = params.path.join('/');
-  const backendUrl = `${BACKEND_URL}/${path}`;
+  const { path } = await params;
+  const backendUrl = `${BACKEND_URL}/${path.join('/')}`;
   
   try {
     // Check if the request is a form data upload
@@ -103,10 +103,10 @@ export async function POST(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  const path = params.path.join('/');
-  const backendUrl = `${BACKEND_URL}/${path}`;
+  const { path } = await params;
+  const backendUrl = `${BACKEND_URL}/${path.join('/')}`;
   
   try {
     const body = await request.json();
@@ -134,10 +134,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  const path = params.path.join('/');
-  const backendUrl = `${BACKEND_URL}/${path}`;
+  const { path } = await params;
+  const backendUrl = `${BACKEND_URL}/${path.join('/')}`;
   
   try {
     const response = await fetch(backendUrl, {
