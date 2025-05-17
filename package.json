@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
     "seed": "node prisma/seed.js",
+    "postinstall": "prisma generate",
     "server:build": "tsc -p tsconfig.server.json",
     "server:start": "node dist/server/api.js",
     "server:dev": "tsx watch src/server/api.ts",

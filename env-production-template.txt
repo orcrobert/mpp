@@ -1,0 +1,11 @@
+# Copy this content to a .env.production file for Vercel deployment
+# or add these variables directly in the Vercel dashboard
+
+# Database connection - Replace with your production database
+DATABASE_URL="postgresql://username:password@hostname:port/database?schema=public"
+
+# Authentication
+JWT_SECRET="your-secure-random-string-here"
+
+# API URL - This will be the URL of your deployed app
+NEXT_PUBLIC_API_URL="https://your-app.vercel.app" 
