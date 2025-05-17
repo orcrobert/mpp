@@ -3,45 +3,30 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { verifyToken } from '@/lib/auth-client';
 
 export default function AdminDashboard() {
   const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-
-    // Verify admin role
-    const verifyAdmin = async () => {
-      try {
-        const response = await fetch('/api/auth/verify', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          router.push('/login');
-          return;
-        }
-
-        const data = await response.json();
-        if (data.role !== 'ADMIN') {
-          router.push('/');
-          return;
-        }
-
-        setIsAdmin(true);
-      } catch (error) {
+    const checkAdmin = async () => {
+      const userData = await verifyToken();
+      
+      if (!userData) {
         router.push('/login');
+        return;
       }
+
+      if (userData.role !== 'ADMIN') {
+        router.push('/');
+        return;
+      }
+
+      setIsAdmin(true);
     };
 
-    verifyAdmin();
+    checkAdmin();
   }, [router]);
 
   if (!isAdmin) {

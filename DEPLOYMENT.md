@@ -1,5 +1,32 @@
 # Deploying Metal-DB to AWS Elastic Beanstalk
 
+This guide explains how to deploy the Metal-DB application.
+
+## Frontend Deployment with Vercel
+
+### 1. Preparing your frontend for deployment
+
+1. Make sure your code is pushed to a GitHub repository
+2. Go to [Vercel](https://vercel.com) and create an account if you don't have one
+3. Click "New Project" and import your GitHub repository
+4. Configure the project:
+   - Framework Preset: Next.js
+   - Root Directory: `.` (or where your Next.js app is located)
+   - Build Command: `npm run build`
+   - Output Directory: `.next`
+5. In the Environment Variables section, add:
+   ```
+   NEXT_PUBLIC_API_URL=https://your-backend-url.elasticbeanstalk.com
+   ```
+   (Note: You'll set this to your actual backend URL after deployment)
+6. Click "Deploy"
+
+### 2. After Vercel deployment
+
+Note your frontend URL (e.g., `https://your-app.vercel.app`). You'll need this when deploying the backend to configure CORS.
+
+## Backend Deployment with AWS Elastic Beanstalk
+
 This guide explains how to deploy the Metal-DB backend to AWS Elastic Beanstalk.
 
 ## Prerequisites
